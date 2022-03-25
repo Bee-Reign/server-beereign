@@ -1,0 +1,17 @@
+### Tools ###
+.vs
+.idea
+
+### Node ##
+node_modules
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride

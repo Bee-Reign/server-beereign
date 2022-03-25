@@ -1,0 +1,32 @@
+{
+  "name": "server-beereign",
+  "version": "0.0.1",
+  "description": "The backend (API, database, etc.). of BeeReign",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "BeeReign",
+    "backend",
+    "infrastructure"
+  ],
+  "author": "bayyand",
+  "license": "MIT",
+  "dependencies": {
+    "@hapi/boom": "^9.1.4",
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "joi": "^17.6.0",
+    "npm": "^8.5.5",
+    "pg": "^8.7.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
