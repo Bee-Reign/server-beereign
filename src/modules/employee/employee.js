@@ -1,8 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 
 const sequelize = require('../../libs/sequelize');
-
-const EMPLOYEE_TABLE = 'employees';
+const { models } = require('../../app/config');
 
 const EMPLOYEE_PROPERTIES = {
   id: {
@@ -57,12 +56,11 @@ class Employee extends Model {}
 Employee.init(EMPLOYEE_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: 'Employee',
-  tableName: EMPLOYEE_TABLE,
+  modelName: models.employee.modelName,
+  tableName: models.employee.tableName,
 });
 
 module.exports = {
   Employee,
-  EMPLOYEE_TABLE,
   EMPLOYEE_PROPERTIES,
 };

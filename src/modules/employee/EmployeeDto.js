@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const id = Joi.number().min(1).max(9223372036854775807);
+const id = Joi.number().unsafe().max(9223372036854775807);
 const name = Joi.string().max(30);
 const lastName = Joi.string().max(30);
 const cellPhone = Joi.string().max(20);

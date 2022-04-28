@@ -16,5 +16,9 @@ const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
+  Enum: {
+    spanish:
+      '"GALONES", "GRAMOS", "KILOGRAMOS", "LIBRAS", "LITROS", "ONZAS", "UNIDADES"',
+  },
 };
 module.exports = { config };

@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 
 const { Employee } = require('./employee');
 const { TypeOfEmployeeService } = require('../typeOfEmployee');
-const res = require('express/lib/response');
 
 const typeOfEmployeeService = new TypeOfEmployeeService();
 

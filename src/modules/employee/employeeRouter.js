@@ -1,13 +1,13 @@
 const { Router } = require('express');
 
-const EmployeeService = require('./EmployeeService');
+const EmployeeService = require('./employeeService');
 const validatorHandler = require('../../app/middlewares/validatorHandler');
 const {
   getEmployeeSchema,
   createEmployeeSchema,
   updateEmployeeSchema,
   updateEmployeeLoginSchema,
-} = require('./EmployeeDto');
+} = require('./employeeDto');
 
 const router = Router();
 const employeeService = new EmployeeService();

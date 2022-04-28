@@ -11,6 +11,12 @@ CREATE TABLE IF NOT EXISTS types_of_employee
 );
 
 --
+-- Data for the table `types_of_employee`
+
+INSERT INTO types_of_employee (name, description, deleted) VALUES
+('administrador', 'tiene acceso global al sistema', false);
+
+--
 -- Structure of the `employees` table
 CREATE TABLE IF NOT EXISTS employees
 (
@@ -31,6 +37,11 @@ CREATE TABLE IF NOT EXISTS employees
     ON DELETE RESTRICT
 );
 
+-- employee records
+-- Default Password: BeeR3in&
+INSERT INTO employees (name, last_name, cell_phone, email, password, type_of_employee_id, created_at, deleted)
+VALUES ('admin', 'admin', '', 'admin@example.com', '$2b$10$uU7KGDkFfgF8JL.bWe.bvu5t8oQSRna56rivPcodb5Qgoys22ohmi')
+
 --
 -- Structure of the `countries` table
 CREATE TABLE IF NOT EXISTS countries
@@ -40,6 +51,10 @@ CREATE TABLE IF NOT EXISTS countries
     PRIMARY KEY(id),
     CONSTRAINT countries_name_key UNIQUE(name)
 );
+INSERT INTO countries (name)
+VALUES ('colombia'),
+('costa rica')
+('panamá');
 
 --
 -- Structure of the `provinces` table
@@ -54,6 +69,17 @@ CREATE TABLE IF NOT EXISTS provinces
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
+INSERT INTO provinces (name, country_id)
+VALUES ('bocas del toro', 3),
+VALUES ('coclé', 3),
+VALUES ('colón', 3),
+VALUES ('chiriquí', 3),
+VALUES ('darién', 3),
+VALUES ('herrera', 3),
+VALUES ('los santos', 3),
+VALUES ('panamá', 3),
+VALUES ('veraguas', 3),
+VALUES ('panamá oeste', 3),
 
 --
 -- Structure of the `apiaries` table
@@ -162,16 +188,6 @@ CREATE TABLE IF NOT EXISTS raw_materials
 );
 
 --
--- Structure of the `measurements` table
-CREATE TABLE IF NOT EXISTS measurements
-(
-    id              smallserial         NOT NULL,
-    name            varchar(30)         NOT NULL,
-    description     varchar(255),
-    PRIMARY KEY(id)
-);
-
---
 -- Structure of the `warehouses` table
 CREATE TABLE IF NOT EXISTS warehouses
 (
@@ -179,7 +195,6 @@ CREATE TABLE IF NOT EXISTS warehouses
     name            varchar(30)        NOT NULL,
     country_id      smallint           NOT NULL,
     province_id     bigint             NOT NULL,
-    location        point,
     deleted         bool default false NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT warehouses_name_key UNIQUE(name),
@@ -194,6 +209,10 @@ CREATE TABLE IF NOT EXISTS warehouses
 );
 
 --
+-- Structure of the `measurements` ENUM
+CREATE TYPE measurement AS ENUM ('GALONES', 'GRAMOS', 'KILOGRAMOS', 'LIBRAS', 'LITROS', 'ONZAS', 'UNIDADES');
+
+--
 -- Structure of the `raw_material_batches` table
 CREATE TABLE IF NOT EXISTS raw_material_batches
 (
@@ -202,7 +221,7 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     warehouse_id        integer         NOT NULL,
     entry_date          date            NOT NULL,
     expiration_date     date,
-    measurement_id      smallint        NOT NULL,
+    measurement         measurement     NOT NULL,
     quantity            integer         NOT NULL,
     unit_cost           decimal(10,2)   NOT NULL,
     stock               integer         NOT NULL,
@@ -216,10 +235,6 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     REFERENCES warehouses(id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE RESTRICT,
-    CONSTRAINT raw_material_batches_measurements_fkey FOREIGN KEY(measurement_id)
-    REFERENCES measurements(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT,
     CONSTRAINT raw_material_batches_employees_fkey FOREIGN KEY(employee_id)
     REFERENCES employees(id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -231,9 +246,10 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
 CREATE TABLE IF NOT EXISTS products
 (
     id              bigserial               NOT NULL,
-    barcode         varchar(128)            NOT NULL,
+    barcode         varchar(128),
     name            varchar(100)            NOT NULL,
     description     varchar(255),
+    created_at      timestamp               NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT products_barcode_key UNIQUE(barcode)
 );
