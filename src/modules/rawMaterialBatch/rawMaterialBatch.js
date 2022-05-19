@@ -1,13 +1,11 @@
 const { DataTypes, Model } = require('sequelize');
+const moment = require('moment');
 
+const sequelize = require('../../libs/sequelize');
+const { models } = require('../../app/config');
 const {
   config: { Enum },
 } = require('../../app/config/config');
-const sequelize = require('../../libs/sequelize');
-const { RAW_MATERIAL_TABLE } = require('../rawMaterial/rawMaterial');
-const { WAREHOUSE_TABLE } = require('../warehouse/warehouse');
-
-const RAW_MATERIAL_BATCH_TABLE = 'raw_material_batches';
 const RAW_MATERIAL_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
@@ -20,7 +18,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
     field: 'raw_material_id',
     references: {
-      model: RAW_MATERIAL_TABLE,
+      model: models.rawMaterial.tableName,
       key: 'id',
     },
   },
@@ -29,7 +27,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
     field: 'warehouse_id',
     references: {
-      model: WAREHOUSE_TABLE,
+      model: models.warehouse.tableName,
       key: 'id',
     },
   },
@@ -37,13 +35,19 @@ const RAW_MATERIAL_PROPERTIES = {
     type: DataTypes.DATEONLY,
     allowNull: false,
     field: 'entry_date',
+    get() {
+      return moment(this.dataValues.entryDate).format('D MM YYYY');
+    },
   },
   expirationDate: {
     type: DataTypes.DATEONLY,
     field: 'expiration_date',
+    get() {
+      return this.dataValues.expirationDate !== null ? moment(this.dataValues.expirationDate).format('D MM YYYY') : "does not expire";
+    },
   },
   measurement: {
-    type: sequelize.ENUM(Enum.spanish),
+    type: DataTypes.ENUM(Enum.spanish),
     allowNull: false,
   },
   quantity: {
@@ -54,6 +58,11 @@ const RAW_MATERIAL_PROPERTIES = {
     type: DataTypes.DECIMAL(12, 2),
     allowNull: false,
     field: 'unit_cost',
+  },
+  totalCost: {
+    type: DataTypes.DECIMAL(15, 2),
+    allowNull: false,
+    field: 'total_cost',
   },
   stock: {
     type: DataTypes.DECIMAL(12, 4),
@@ -67,6 +76,10 @@ const RAW_MATERIAL_PROPERTIES = {
   createdAt: {
     type: DataTypes.DATE,
     allowNull: false,
+    field: 'created_at',
+    get() {
+      return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
+    },
     defaultValue: sequelize.literal('NOW()'),
   },
 };
@@ -76,12 +89,11 @@ class RawMaterialBatch extends Model {}
 RawMaterialBatch.init(RAW_MATERIAL_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: 'RawMaterialBatch',
-  tableName: RAW_MATERIAL_TABLE,
+  modelName: models.rawMaterialBatch.modelName,
+  tableName: models.rawMaterialBatch.tableName,
 });
 
 module.exports = {
   RawMaterialBatch,
-  RAW_MATERIAL_TABLE,
   RAW_MATERIAL_PROPERTIES,
 };

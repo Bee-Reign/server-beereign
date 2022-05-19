@@ -1,16 +1,16 @@
 const { Router } = require('express');
 
-const RawMaterialService = require('./rawMaterialService');
+const ProductService = require('./productService');
 const validatorHandler = require('../../app/middlewares/validatorHandler');
 const {
-  getRawMaterialSchema,
-  createRawMaterialSchema,
-  updateRawMaterialSchema,
+  getSchema,
+  createSchema,
+  updateSchema,
   querySchema,
-} = require('./rawMaterialDto');
+} = require('./productDto');
 
 const router = Router();
-const rawMaterialService = new RawMaterialService();
+const productService = new ProductService();
 
 router.get(
   '/',
@@ -18,12 +18,8 @@ router.get(
   async (req, res, next) => {
     try {
       const { limit, offset, filter } = req.query;
-      const rawMaterials = await rawMaterialService.findAll(
-        limit,
-        offset,
-        filter
-      );
-      res.status(200).json(rawMaterials);
+      const products = await productService.findAll(limit, offset, filter);
+      res.status(200).json(products);
     } catch (error) {
       next(error);
     }
@@ -32,12 +28,12 @@ router.get(
 
 router.get(
   '/:id',
-  validatorHandler(getRawMaterialSchema, 'params'),
+  validatorHandler(getSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const rawMaterial = await rawMaterialService.findById(id);
-      res.status(200).json(rawMaterial);
+      const product = await productService.findById(id);
+      res.status(200).json(product);
     } catch (error) {
       next(error);
     }
@@ -46,12 +42,12 @@ router.get(
 
 router.post(
   '/',
-  validatorHandler(createRawMaterialSchema, 'body'),
+  validatorHandler(createSchema, 'body'),
   async (req, res, next) => {
     try {
       const data = req.body;
-      const rawMaterial = await rawMaterialService.create(data);
-      res.status(201).json(rawMaterial);
+      const product = await productService.create(data);
+      res.status(201).json(product);
     } catch (error) {
       next(error);
     }
@@ -60,14 +56,14 @@ router.post(
 
 router.patch(
   '/:id',
-  validatorHandler(getRawMaterialSchema, 'params'),
-  validatorHandler(updateRawMaterialSchema, 'body'),
+  validatorHandler(getSchema, 'params'),
+  validatorHandler(updateSchema, 'body'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
       const data = req.body;
-      const rawMaterial = await rawMaterialService.update(id, data);
-      res.status(201).json(rawMaterial);
+      const product = await productService.update(id, data);
+      res.status(201).json(product);
     } catch (error) {
       next(error);
     }
@@ -76,11 +72,11 @@ router.patch(
 
 router.delete(
   '/:id',
-  validatorHandler(getRawMaterialSchema, 'params'),
+  validatorHandler(getSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      await rawMaterialService.disable(id);
+      await productService.disable(id);
       res.status(200).end();
     } catch (error) {
       next(error);

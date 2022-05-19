@@ -1,11 +1,14 @@
 const boom = require('@hapi/boom');
+const Op = require('sequelize/lib/operators');
 
 const { Warehouse } = require('./warehouse');
+const { Country } = require('../country/country');
+const { Province } = require('../province/province');
 
 class WarehouseService {
   constructor() {}
 
-  async WarehouseNameExist(name = '') {
+  async warehouseNameExist(name = '') {
     const ifExist = await Warehouse.findOne({
       where: {
         name: name,
@@ -16,24 +19,53 @@ class WarehouseService {
     }
   }
 
-  async findAll() {
-    const warehouses = await Warehouse.findAll({
-      attributes: ['id', 'name', 'countryId', 'provinceId', 'city', 'location'],
+  async findAll(limit = null, offset = null, filter = '') {
+    if (limit === null || offset === null) {
+      const warehouses = await Warehouse.findAll({
+        attributes: ['id', 'name', 'city'],
+        order: [['id', 'ASC']],
+        where: {
+          deleted: false,
+          name: {
+            [Op.like]: '%' + filter + '%',
+          },
+        },
+        limit: 25,
+      });
+      return warehouses;
+    }
+    const warehouses = await Warehouse.findAndCountAll({
+      attributes: ['id', 'name', 'city'],
       order: [['id', 'ASC']],
       where: {
         deleted: false,
+        name: {
+          [Op.like]: '%' + filter + '%',
+        },
       },
+      limit,
+      offset,
     });
     return warehouses;
   }
 
   async findById(id) {
     const warehouse = await Warehouse.findOne({
-      attributes: ['id', 'name', 'countryId', 'provinceId', 'city', 'location'],
+      attributes: ['id', 'name', 'city'],
       where: {
         id: id,
         deleted: false,
       },
+      include: [
+        {
+          model: Country,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Province,
+          attributes: ['id', 'name'],
+        },
+      ],
     });
     if (!warehouse) {
       throw boom.notFound('warehouse not found');
@@ -42,8 +74,19 @@ class WarehouseService {
   }
 
   async create(data) {
-    await this.WarehouseNameExist(data.name);
+    await this.warehouseNameExist(data.name);
     const warehouse = await Warehouse.create(data);
+    delete warehouse.dataValues.deleted;
+    return warehouse;
+  }
+
+  async update(id, data) {
+    const warehouse = await this.findById(id);
+    if (warehouse.name != data.name) {
+      await this.warehouseNameExist(data.name);
+    }
+    await warehouse.update(data);
+    delete warehouse.dataValues.deleted;
     return warehouse;
   }
 }

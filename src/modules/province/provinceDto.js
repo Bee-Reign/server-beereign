@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const id = Joi.number().unsafe().max(9223372036854775807);
+const id = Joi.number().unsafe().min(1).max(9223372036854775807);
 const name = Joi.string().min(2).max(50);
 const countryId = Joi.number().integer().positive().max(32767);
 

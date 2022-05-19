@@ -4,6 +4,7 @@ const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const { Province } = require('../province/province');
 const { Apiary } = require('../apiary/apiary');
+const { Warehouse } = require('../warehouse/warehouse');
 
 const COUNTRY_PROPERTIES = {
   id: {
@@ -31,8 +32,11 @@ Country.init(COUNTRY_PROPERTIES, {
 Country.hasMany(Province, { foreignKey: 'countryId', sourceKey: 'id' });
 Province.belongsTo(Country, { foreignKey: 'countryId', sourceKey: 'id' });
 
-Country.hasMany(Apiary, {foreignKey: 'countryId', sourceKey: 'id'});
-Apiary.belongsTo(Country, {foreignKey: 'countryId', sourceKey: 'id'});
+Country.hasMany(Apiary, { foreignKey: 'countryId', sourceKey: 'id' });
+Apiary.belongsTo(Country, { foreignKey: 'countryId', sourceKey: 'id' });
+
+Country.hasMany(Warehouse, { foreignKey: 'countryId', sourceKey: 'id' });
+Warehouse.belongsTo(Country, { foreignKey: 'countryId', sourceKey: 'id' });
 
 module.exports = {
   Country,

@@ -12,17 +12,19 @@ const {
 const router = Router();
 const apiaryService = new ApiaryService();
 
-router.get('/',
-validatorHandler(queryApiarySchema, 'query'),
-async (req, res, next) => {
-  try {
-    const { limit, offset } = req.query;
-    const apiaries = await apiaryService.findAll(limit, offset);
-    res.status(200).json(apiaries);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  validatorHandler(queryApiarySchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const { limit, offset, filter } = req.query;
+      const apiaries = await apiaryService.findAll(limit, offset, filter);
+      res.status(200).json(apiaries);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
@@ -53,12 +55,15 @@ router.post(
 );
 
 router.patch(
-  '/',
+  '/:id',
   validatorHandler(getApiarySchema, 'params'),
   validatorHandler(updateApiarySchema, 'body'),
-  (req, res, next) => {
+  async (req, res, next) => {
     try {
-      res.status(200).end();
+      const { id } = req.params;
+      const body = req.body;
+      const apiary = await apiaryService.update(id, body);
+      res.status(200).json(apiary);
     } catch (error) {
       next(error);
     }

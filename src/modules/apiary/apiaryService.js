@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-
+const Op = require('sequelize/lib/operators');
 //Models
 const { Apiary } = require('./apiary');
 const { Country } = require('../country/country');
@@ -26,12 +26,29 @@ class ApiaryService {
     }
   }
 
-  async findAll(limit = 10, offset = 0) {
-    const apiaries = await Apiary.findAll({
+  async findAll(limit = null, offset = null, filter = '') {
+    if (limit === null || offset === null) {
+      const apiaries = await Apiary.findAll({
+        attributes: ['id', 'name', 'city'],
+        order: [['id', 'ASC']],
+        where: {
+          deleted: false,
+          name: {
+            [Op.like]: '%' + filter + '%',
+          },
+        },
+        limit: 25,
+      });
+      return apiaries;
+    }
+    const apiaries = await Apiary.findAndCountAll({
       attributes: ['id', 'name', 'city'],
       order: [['id', 'ASC']],
       where: {
         deleted: false,
+        name: {
+          [Op.like]: '%' + filter + '%',
+        },
       },
       include: [
         {
@@ -76,12 +93,18 @@ class ApiaryService {
     await countryService.findById(data.countryId);
     await provinceService.findById(data.provinceId);
     const apiary = await Apiary.create(data);
+    delete apiary.dataValues.deleted;
     return apiary;
   }
 
   async update(id, data) {
     const apiary = await this.findById(id);
     await apiary.update(data);
+    if (apiary.name != data.name) {
+      await this.apiaryNameExist(data.name);
+    }
+    delete apiary.dataValues.deleted;
+    return apiary;
   }
 
   async disable() {}

@@ -1,9 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const passport = require('passport');
 
-const {
-  config: { Server },
-} = require('./config/config');
+const { config: { Server } } = require('./config');
 
 const { corsOptions } = require('./middlewares/corsOptions');
 const {
@@ -13,6 +12,7 @@ const {
 } = require('./middlewares/errorHandler');
 
 const routes = require('./routes');
+require('../utils/auth');
 
 class App {
   constructor() {
@@ -22,6 +22,7 @@ class App {
     this.app.use(express.json());
     this.app.use(cors(corsOptions)); //enable url for cors in .env file
 
+    this.app.use(passport.initialize({session: false}));
     this.app.use('/', routes); //routes
 
     this.middlewares();

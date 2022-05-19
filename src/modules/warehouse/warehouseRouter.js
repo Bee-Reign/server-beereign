@@ -7,19 +7,25 @@ const {
   getWarehouseSchema,
   createWarehouseSchema,
   updateWarehouseSchema,
+  querySchema,
 } = require('./warehouseDto');
 
 const router = Router();
 const warehouseService = new WarehouseService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const warehouses = await warehouseService.findAll();
-    res.status(200).json(warehouses);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  validatorHandler(querySchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const { limit, offset, filter } = req.query;
+      const warehouses = await warehouseService.findAll(limit, offset, filter);
+      res.status(200).json(warehouses);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
@@ -28,7 +34,7 @@ router.get(
     try {
       const { id } = req.params;
       const warehouse = await warehouseService.findById(id);
-      return warehouse;
+      res.status(200).json(warehouse);
     } catch (error) {
       next(error);
     }
@@ -42,11 +48,7 @@ router.post(
     try {
       const data = req.body;
       const warehouse = await warehouseService.create(data);
-      res.status(201).json({
-        id: warehouse.id,
-        name: warehouse.name,
-        createdAt: warehouse.createdAt,
-      });
+      res.status(201).json(warehouse);
     } catch (error) {
       next(error);
     }
@@ -54,11 +56,14 @@ router.post(
 );
 
 router.patch(
-  '/',
+  '/:id',
   validatorHandler(getWarehouseSchema, 'params'),
   validatorHandler(updateWarehouseSchema, 'body'),
   async (req, res, next) => {
     try {
+      const { id } = req.params;
+      const data = req.body;
+      const warehouse = await warehouseService.update(id, data);
       res.status(200).end();
     } catch (error) {
       next(error);
@@ -67,7 +72,7 @@ router.patch(
 );
 
 router.delete(
-  '/',
+  '/:id',
   validatorHandler(getWarehouseSchema, 'params'),
   async (req, res, next) => {
     try {

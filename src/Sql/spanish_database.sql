@@ -38,9 +38,10 @@ CREATE TABLE IF NOT EXISTS employees
 );
 
 -- employee records
+-- Default Email: admin@example.com
 -- Default Password: BeeR3in&
 INSERT INTO employees (name, last_name, cell_phone, email, password, type_of_employee_id, created_at, deleted)
-VALUES ('admin', 'admin', '', 'admin@example.com', '$2b$10$uU7KGDkFfgF8JL.bWe.bvu5t8oQSRna56rivPcodb5Qgoys22ohmi')
+VALUES ('admin', 'admin', '', 'admin@example.com', '$2b$10$uU7KGDkFfgF8JL.bWe.bvu5t8oQSRna56rivPcodb5Qgoys22ohmi', 1, now(), default);
 
 --
 -- Structure of the `countries` table
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS countries
 );
 INSERT INTO countries (name)
 VALUES ('colombia'),
-('costa rica')
+('costa rica'),
 ('panamá');
 
 --
@@ -71,15 +72,15 @@ CREATE TABLE IF NOT EXISTS provinces
 );
 INSERT INTO provinces (name, country_id)
 VALUES ('bocas del toro', 3),
-VALUES ('coclé', 3),
-VALUES ('colón', 3),
-VALUES ('chiriquí', 3),
-VALUES ('darién', 3),
-VALUES ('herrera', 3),
-VALUES ('los santos', 3),
-VALUES ('panamá', 3),
-VALUES ('veraguas', 3),
-VALUES ('panamá oeste', 3),
+('coclé', 3),
+('colón', 3),
+('chiriquí', 3),
+('darién', 3),
+('herrera', 3),
+('los santos', 3),
+('panamá', 3),
+('veraguas', 3),
+('panamá oeste', 3);
 
 --
 -- Structure of the `apiaries` table
@@ -191,10 +192,11 @@ CREATE TABLE IF NOT EXISTS raw_materials
 -- Structure of the `warehouses` table
 CREATE TABLE IF NOT EXISTS warehouses
 (
-    id              serial             NOT NULL,
-    name            varchar(30)        NOT NULL,
+    id              smallserial        NOT NULL,
+    name            varchar(50)        NOT NULL,
     country_id      smallint           NOT NULL,
     province_id     bigint             NOT NULL,
+    city            varchar(50)        NOT NULL,
     deleted         bool default false NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT warehouses_name_key UNIQUE(name),
@@ -222,10 +224,12 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     entry_date          date            NOT NULL,
     expiration_date     date,
     measurement         measurement     NOT NULL,
-    quantity            integer         NOT NULL,
-    unit_cost           decimal(10,2)   NOT NULL,
-    stock               integer         NOT NULL,
+    quantity            decimal(12,4)   NOT NULL,
+    unit_cost           decimal(12,2)   NOT NULL,
+    total_cost          decimal(15,2)   NOT NULL,
+    stock               decimal(12,4)   NOT NULL,
     employee_id         bigint          NOT NULL,
+    created_at          timestamp       NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT raw_material_batches_raw_material_fkey FOREIGN KEY(raw_material_id)
     REFERENCES raw_materials(id) MATCH SIMPLE
@@ -245,11 +249,12 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
 -- Structure of the `products` table
 CREATE TABLE IF NOT EXISTS products
 (
-    id              bigserial               NOT NULL,
+    id              serial                  NOT NULL,
     barcode         varchar(128),
     name            varchar(100)            NOT NULL,
     description     varchar(255),
     created_at      timestamp               NOT NULL,
+    deleted         bool default false      NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT products_barcode_key UNIQUE(barcode)
 );

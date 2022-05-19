@@ -1,7 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
+const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
+const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
 
 const EMPLOYEE_PROPERTIES = {
   id: {
@@ -43,6 +45,9 @@ const EMPLOYEE_PROPERTIES = {
     allowNull: false,
     defaultValue: sequelize.literal('NOW()'),
     field: 'created_at',
+    get() {
+      return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
+    },
   },
   deleted: {
     type: DataTypes.BOOLEAN,
@@ -58,6 +63,15 @@ Employee.init(EMPLOYEE_PROPERTIES, {
   timestamps: false,
   modelName: models.employee.modelName,
   tableName: models.employee.tableName,
+});
+
+Employee.hasMany(RawMaterialBatch, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
+});
+RawMaterialBatch.belongsTo(Employee, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
 });
 
 module.exports = {

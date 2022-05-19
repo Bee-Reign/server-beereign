@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-const res = require('express/lib/response');
+const Op = require('sequelize/lib/operators');
 
 const { RawMaterial } = require('./rawMaterial');
 
@@ -17,13 +17,50 @@ class RawMaterialService {
     }
   }
 
-  async findAll() {
-    const rawMaterials = await RawMaterial.findAll({
-      attributes: ['id', 'code', 'name', 'createdAt'],
+  async findAll(limit = null, offset = null, filter = '') {
+    if (limit === null || offset === null) {
+      const rawMaterials = await RawMaterial.findAll({
+        attributes: { exclude: ['deleted'] },
+        order: [['id', 'ASC']],
+        where: {
+          deleted: false,
+          [Op.or]: [
+            {
+              code: {
+                [Op.like]: '%' + filter + '%',
+              },
+            },
+            {
+              name: {
+                [Op.like]: '%' + filter + '%',
+              },
+            },
+          ],
+        },
+        limit: 25,
+      });
+      return rawMaterials;
+    }
+    const rawMaterials = await RawMaterial.findAndCountAll({
+      attributes: { exclude: ['deleted'] },
       order: [['id', 'ASC']],
       where: {
         deleted: false,
+        [Op.or]: [
+          {
+            code: {
+              [Op.like]: '%' + filter + '%',
+            },
+          },
+          {
+            name: {
+              [Op.like]: '%' + filter + '%',
+            },
+          },
+        ],
       },
+      limit,
+      offset,
     });
     return rawMaterials;
   }
@@ -45,6 +82,7 @@ class RawMaterialService {
   async create(data) {
     await this.rawMaterialCodeExist(data.code);
     const rawMaterial = await RawMaterial.create(data);
+    delete rawMaterial.dataValues.deleted;
     return rawMaterial;
   }
 
@@ -54,6 +92,7 @@ class RawMaterialService {
       await this.rawMaterialCodeExist(data.code);
     }
     await rawMaterial.update(data);
+    delete rawMaterial.dataValues.deleted;
     return rawMaterial;
   }
 

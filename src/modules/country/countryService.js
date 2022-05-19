@@ -1,6 +1,10 @@
 const boom = require('@hapi/boom');
+const Op = require('sequelize/lib/operators');
 
 const { Country } = require('./country');
+const { ProvinceService } = require('../province');
+
+const provinceService = new ProvinceService();
 
 class CountryService {
   constructor() {}
@@ -16,11 +20,21 @@ class CountryService {
     }
   }
 
-  async findAll() {
+  async findAll(query = '') {
     const countries = await Country.findAll({
       order: [['name', 'ASC']],
+      where: {
+        name: {
+          [Op.like]: query + '%',
+        },
+      },
     });
     return countries;
+  }
+
+  async findAllProvincesById(id, query) {
+    const provinces = await provinceService.findAllByCountryId(id, query);
+    return provinces;
   }
 
   async findById(id) {

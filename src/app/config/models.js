@@ -11,10 +11,30 @@ const models = {
     modelName: 'apiary',
     tableName: 'apiaries',
   },
+  typeOfEmployee: {
+    modelName: 'typeOfEmployee',
+    tableName: 'types_of_employee',
+  },
   employee: {
     modelName: 'employee',
     tableName: 'employees',
   },
+  rawMaterial: {
+    modelName: 'rawMaterial',
+    tableName: 'raw_materials',
+  },
+  warehouse: {
+    modelName: 'warehouse',
+    tableName: 'warehouses',
+  },
+  rawMaterialBatch: {
+    modelName: 'rawMaterialBatch',
+    tableName: 'raw_material_batches',
+  },
+  product: {
+    modelName: 'product',
+    tableName: 'products',
+  }
 };
 
 module.exports = {

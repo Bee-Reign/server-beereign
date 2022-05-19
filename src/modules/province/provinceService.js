@@ -1,9 +1,6 @@
 const boom = require('@hapi/boom');
-
+const Op  = require('sequelize/lib/operators');
 const { Province } = require('./province');
-const { CountryService } = require('../country');
-
-const countryService = new CountryService();
 
 class ProvinceService {
   constructor() {}
@@ -20,11 +17,25 @@ class ProvinceService {
     }
   }
 
-  async findAll(limit = 2, offset = 0) {
+  async findAll(limit = 15, offset = 0) {
     const provinces = await Province.findAll({
       order: [['name', 'ASC']],
       limit,
       offset,
+    });
+    return provinces;
+  }
+
+  async findAllByCountryId(countryId, query = "") {
+    const provinces = await Province.findAll({
+      attributes: { exclude: ['countryId'] },
+      order: [['name', 'ASC']],
+      where: {
+        countryId,
+        name: {
+          [Op.like]: query + '%',
+        },
+      },
     });
     return provinces;
   }
@@ -39,7 +50,6 @@ class ProvinceService {
 
   async create(data) {
     await this.existProvince(data.name, data.countryId);
-    const country = await countryService.findById(data.countryId);
     const province = await Province.create(data);
     return province;
   }

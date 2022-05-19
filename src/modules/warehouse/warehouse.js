@@ -1,10 +1,9 @@
 const { DataTypes, Model } = require('sequelize');
 
 const sequelize = require('../../libs/sequelize');
-const { COUNTRY_TABLE } = require('../country/country');
-const { PROVINCE_TABLE } = require('../province/province');
+const { models } = require('../../app/config');
+const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
 
-const WAREHOUSE_TABLE = 'warehouses';
 const WAREHOUSE_PROPERTIES = {
   id: {
     type: DataTypes.SMALLINT,
@@ -13,7 +12,7 @@ const WAREHOUSE_PROPERTIES = {
     allowNull: false,
   },
   name: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(50),
     allowNull: false,
     unique: true,
   },
@@ -22,7 +21,7 @@ const WAREHOUSE_PROPERTIES = {
     allowNull: false,
     field: 'country_id',
     references: {
-      model: COUNTRY_TABLE,
+      model: models.country.tableName,
       key: 'id',
     },
   },
@@ -31,16 +30,13 @@ const WAREHOUSE_PROPERTIES = {
     allowNull: false,
     field: 'province_id',
     references: {
-      model: PROVINCE_TABLE,
+      model: models.province.tableName,
       key: 'id',
     },
   },
   city: {
     type: DataTypes.STRING(50),
     allowNull: false,
-  },
-  location: {
-    type: DataTypes.GEOMETRY,
   },
   deleted: {
     type: DataTypes.BOOLEAN,
@@ -54,12 +50,20 @@ class Warehouse extends Model {}
 Warehouse.init(WAREHOUSE_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: 'Warehouse',
-  tableName: WAREHOUSE_TABLE,
+  modelName: models.warehouse.modelName,
+  tableName: models.warehouse.tableName,
+});
+
+Warehouse.hasMany(RawMaterialBatch, {
+  foreignKey: 'warehouseId',
+  sourceKey: 'id',
+});
+RawMaterialBatch.belongsTo(Warehouse, {
+  foreignKey: 'warehouseId',
+  sourceKey: 'id',
 });
 
 module.exports = {
   Warehouse,
-  WAREHOUSE_TABLE,
   WAREHOUSE_PROPERTIES,
 };

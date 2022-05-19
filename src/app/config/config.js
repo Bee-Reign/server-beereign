@@ -5,9 +5,10 @@ const config = {
   Server: {
     port: process.env.PORT || 3000,
     whitelist: [
-      'http://127.0.0.1',
+      'http://localhost:3000',
       process.env.CORS_URL || 'https://example.example',
     ],
+    jwtSecret: process.env.JWT_SECRET,
   },
   Database: {
     host: process.env.DB_HOST,

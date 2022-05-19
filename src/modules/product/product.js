@@ -3,20 +3,23 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
 
-const RAW_MATERIAL_PROPERTIES = {
+const PRODUCT_PROPERTIES = {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  code: {
-    type: DataTypes.STRING(12),
+  barcode: {
+    type: DataTypes.STRING(128),
     unique: true,
   },
   name: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  description: {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
@@ -36,25 +39,15 @@ const RAW_MATERIAL_PROPERTIES = {
   },
 };
 
-class RawMaterial extends Model {}
+class Product extends Model {}
 
-RawMaterial.init(RAW_MATERIAL_PROPERTIES, {
+Product.init(PRODUCT_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: models.rawMaterial.modelName,
-  tableName: models.rawMaterial.tableName,
+  modelName: models.product.modelName,
+  tableName: models.product.tableName,
 });
-
-RawMaterial.hasMany(RawMaterialBatch, {
-  foreignKey: 'rawMaterialId',
-  sourceKey: 'id',
-});
-RawMaterialBatch.belongsTo(RawMaterial, {
-  foreignKey: 'rawMaterialId',
-  sourceKey: 'id',
-});
-
 module.exports = {
-  RawMaterial,
-  RAW_MATERIAL_PROPERTIES,
+  Product,
+  PRODUCT_PROPERTIES,
 };

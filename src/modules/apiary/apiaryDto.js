@@ -9,6 +9,7 @@ const location = Joi.object();
 
 const limit = Joi.number().integer().min(2);
 const offset = Joi.number().integer().min(0);
+const filter = Joi.string().min(0).max(25);
 
 const getApiarySchema = Joi.object({
   id: id.required(),
@@ -33,6 +34,7 @@ const updateApiarySchema = Joi.object({
 const queryApiarySchema = Joi.object({
   limit,
   offset,
+  filter,
 });
 
 module.exports = {

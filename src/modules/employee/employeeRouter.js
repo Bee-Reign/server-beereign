@@ -6,20 +6,25 @@ const {
   getEmployeeSchema,
   createEmployeeSchema,
   updateEmployeeSchema,
-  updateEmployeeLoginSchema,
+  queryEmployeeSchema,
 } = require('./employeeDto');
 
 const router = Router();
 const employeeService = new EmployeeService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const employees = await employeeService.findAll();
-    res.status(200).json(employees);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  validatorHandler(queryEmployeeSchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const { limit, offset, filter } = req.query;
+      const employees = await employeeService.findAll(limit, offset, filter);
+      res.status(200).json(employees);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
@@ -42,14 +47,7 @@ router.post(
     try {
       const { createdAt, deleted, ...data } = req.body;
       const employee = await employeeService.create(data);
-      res.status(201).json({
-        id: employee.id,
-        name: employee.name,
-        lastName: employee.lastName,
-        cellPhone: employee.cellPhone,
-        email: employee.email,
-        createdAt: employee.createdAt,
-      });
+      res.status(201).json(employee);
     } catch (error) {
       next(error);
     }
@@ -59,12 +57,14 @@ router.post(
 router.patch(
   '/:id',
   validatorHandler(getEmployeeSchema, 'params'),
+  validatorHandler(queryEmployeeSchema, 'query'),
   validatorHandler(updateEmployeeSchema, 'body'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { email, password, createdAt, deleted, ...data } = req.body;
-      const employee = await employeeService.update(id, data);
+      const { update } = req.query;
+      const { createdAt, deleted, ...data } = req.body;
+      const employee = await employeeService.update(id, update, data);
       res.status(200).json(employee);
     } catch (error) {
       next(error);
