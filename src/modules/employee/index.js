@@ -1,5 +1,5 @@
 const employeeRouter = require('./employeeRouter');
-const EmployeeService = require('./EmployeeService');
+const EmployeeService = require('./employeeService');
 
 module.exports = {
   employeeRouter,

@@ -1,4 +1,4 @@
-const Joi = require('Joi');
+const Joi = require('joi');
 
 const id = Joi.number().integer().positive().max(2147483647);
 const barcode = Joi.string().max(128).alphanum();
