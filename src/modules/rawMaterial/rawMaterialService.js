@@ -1,9 +1,14 @@
 const boom = require('@hapi/boom');
+const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
 
 const { RawMaterial } = require('./rawMaterial');
 
 class RawMaterialService {
+  COUNT_QUERY =
+    'SELECT count(*) AS count FROM raw_materials AS rawMaterial WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false;';
+  SELECT_QUERY =
+    'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at as "createdAt", sum(rawMaterialBatches.stock) as stock, rawMaterialBatches.measurement, ROUND(AVG(rawMaterialBatches.unit_cost), 2) as "averageCost", ROUND(sum(rawMaterialBatches.stock * rawMaterialBatches.unit_cost), 2) as amount FROM raw_materials rawMaterial inner join raw_material_batches rawMaterialBatches on rawMaterial.id = rawMaterialBatches.raw_material_id WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false GROUP BY rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at, rawMaterialBatches.measurement ORDER BY rawMaterial.id ASC limit :limit offset :offset;';
   constructor() {}
 
   async rawMaterialCodeExist(code = '') {
@@ -41,28 +46,22 @@ class RawMaterialService {
       });
       return rawMaterials;
     }
-    const rawMaterials = await RawMaterial.findAndCountAll({
-      attributes: { exclude: ['deleted'] },
-      order: [['id', 'ASC']],
-      where: {
-        deleted: false,
-        [Op.or]: [
-          {
-            code: {
-              [Op.like]: '%' + filter + '%',
-            },
-          },
-          {
-            name: {
-              [Op.like]: '%' + filter + '%',
-            },
-          },
-        ],
-      },
-      limit,
-      offset,
+    const count = await RawMaterial.sequelize.query(this.COUNT_QUERY, {
+      replacements: { filter: '%' + filter + '%' },
+      type: QueryTypes.SELECT,
     });
-    return rawMaterials;
+    const rawMaterials = await RawMaterial.sequelize.query(this.SELECT_QUERY, {
+      replacements: {
+        filter: '%' + filter + '%',
+        limit: limit,
+        offset: offset,
+      },
+      type: QueryTypes.SELECT,
+    });
+    const data = {};
+    data.count = count[0].count;
+    data.rows = rawMaterials;
+    return data;
   }
 
   async findById(id) {

@@ -43,7 +43,9 @@ const RAW_MATERIAL_PROPERTIES = {
     type: DataTypes.DATEONLY,
     field: 'expiration_date',
     get() {
-      return this.dataValues.expirationDate !== null ? moment(this.dataValues.expirationDate).format('D MM YYYY') : "does not expire";
+      return this.dataValues.expirationDate !== null
+        ? moment(this.dataValues.expirationDate).format('D MM YYYY')
+        : 'does not expire';
     },
   },
   measurement: {
@@ -51,7 +53,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
   },
   quantity: {
-    type: DataTypes.DECIMAL(12, 4),
+    type: DataTypes.DECIMAL(12, 2),
     allowNull: false,
   },
   unitCost: {
@@ -65,7 +67,7 @@ const RAW_MATERIAL_PROPERTIES = {
     field: 'total_cost',
   },
   stock: {
-    type: DataTypes.DECIMAL(12, 4),
+    type: DataTypes.DECIMAL(12, 2),
     allowNull: false,
   },
   employeeId: {
