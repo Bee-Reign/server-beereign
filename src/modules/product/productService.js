@@ -1,9 +1,17 @@
 const boom = require('@hapi/boom');
+const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
 
 const { Product } = require('./product');
 
 class ProductService {
+  COUNT_QUERY =
+    'SELECT count(*) AS count FROM products products WHERE (products.barcode LIKE :filter OR products.name LIKE :filter) AND products.deleted = false;';
+  SELECT_QUERY =
+    'SELECT product.id, product.barcode, product.name, product.created_at as "createdAt", productStockById(product.id) AS stock,\
+    productAverageCost(product.id) as "averageCost", productCostValue(product.id) as amount\
+    FROM products product WHERE (product.barcode LIKE :filter OR product.name LIKE :filter) AND product.deleted = false\
+    ORDER BY stock ASC limit :limit offset :offset;';
   constructor() {}
 
   async productBarcodeExist(barcode = '') {
@@ -13,7 +21,7 @@ class ProductService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('duplicate key exception');
     }
   }
 
@@ -24,27 +32,39 @@ class ProductService {
         order: [['id', 'ASC']],
         where: {
           deleted: false,
-          name: {
-            [Op.like]: '%' + filter + '%',
-          },
+          [Op.or]: [
+            {
+              barcode: {
+                [Op.like]: '%' + filter + '%',
+              },
+            },
+            {
+              name: {
+                [Op.like]: '%' + filter + '%',
+              },
+            },
+          ],
         },
         limit: 25,
       });
       return products;
     }
-    const products = await Product.findAndCountAll({
-      attributes: { exclude: ['deleted', 'description'] },
-      order: [['id', 'ASC']],
-      where: {
-        deleted: false,
-        name: {
-          [Op.like]: '%' + filter + '%',
-        },
-      },
-      limit,
-      offset,
+    const count = await Product.sequelize.query(this.COUNT_QUERY, {
+      replacements: { filter: '%' + filter + '%' },
+      type: QueryTypes.SELECT,
     });
-    return products;
+    const products = await Product.sequelize.query(this.SELECT_QUERY, {
+      replacements: {
+        filter: '%' + filter + '%',
+        limit: limit,
+        offset: offset,
+      },
+      type: QueryTypes.SELECT,
+    });
+    const data = {};
+    data.count = count[0].count;
+    data.rows = products;
+    return data;
   }
 
   async findById(id) {

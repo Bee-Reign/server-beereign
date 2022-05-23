@@ -3,6 +3,7 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
+const { ProductBatch } = require('../productBatch/productBatch');
 
 const WAREHOUSE_PROPERTIES = {
   id: {
@@ -59,6 +60,15 @@ Warehouse.hasMany(RawMaterialBatch, {
   sourceKey: 'id',
 });
 RawMaterialBatch.belongsTo(Warehouse, {
+  foreignKey: 'warehouseId',
+  sourceKey: 'id',
+});
+
+Warehouse.hasMany(ProductBatch, {
+  foreignKey: 'warehouseId',
+  sourceKey: 'id',
+});
+ProductBatch.belongsTo(Warehouse, {
   foreignKey: 'warehouseId',
   sourceKey: 'id',
 });

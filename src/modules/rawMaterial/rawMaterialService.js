@@ -8,7 +8,7 @@ class RawMaterialService {
   COUNT_QUERY =
     'SELECT count(*) AS count FROM raw_materials AS rawMaterial WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false;';
   SELECT_QUERY =
-    'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at as "createdAt", sum(rawMaterialBatches.stock) as stock, rawMaterialBatches.measurement, ROUND(AVG(rawMaterialBatches.unit_cost), 2) as "averageCost", ROUND(sum(rawMaterialBatches.stock * rawMaterialBatches.unit_cost), 2) as amount FROM raw_materials rawMaterial inner join raw_material_batches rawMaterialBatches on rawMaterial.id = rawMaterialBatches.raw_material_id WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false GROUP BY rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at, rawMaterialBatches.measurement ORDER BY rawMaterial.id ASC limit :limit offset :offset;';
+    'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at as "createdAt", rawMaterialStockById(rawMaterial.id) AS stock, rawMaterialAverageCost(rawMaterial.id) as "averageCost", rawMaterialCostValue(rawMaterial.id) as amount, rawMaterialMeasurement(rawMaterial.id) as measurement  FROM raw_materials rawMaterial WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false ORDER BY stock ASC limit :limit offset :offset;';
   constructor() {}
 
   async rawMaterialCodeExist(code = '') {

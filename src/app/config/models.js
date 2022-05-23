@@ -34,7 +34,11 @@ const models = {
   product: {
     modelName: 'product',
     tableName: 'products',
-  }
+  },
+  productBatch: {
+    modelName: 'productBatch',
+    tableName: 'product_batches',
+  },
 };
 
 module.exports = {

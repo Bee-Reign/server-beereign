@@ -216,6 +216,48 @@ CREATE TYPE measurement AS ENUM ('GALONES', 'GRAMOS', 'KILOGRAMOS', 'LIBRAS', 'L
 
 --
 -- Structure of the `raw_material_batches` table
+-- Functions
+CREATE OR REPLACE FUNCTION rawMaterialStockById (id integer)
+RETURNS decimal(12,2) AS $stock$
+declare
+	stock decimal(12,2);
+BEGIN
+   SELECT sum(rawMaterialBatch.stock) into stock FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
+   RETURN stock;
+END;
+$stock$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION rawMaterialAverageCost (id integer)
+RETURNS decimal(12,2) AS $averageCost$
+declare
+	averageCost decimal(12,2);
+BEGIN
+   SELECT ROUND(AVG(rawMaterialBatch.unit_cost), 2) into averageCost FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
+   RETURN averageCost;
+END;
+$averageCost$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION rawMaterialCostValue (id integer)
+RETURNS decimal(15,2) AS $costValue$
+declare
+	costValue decimal(12,2);
+BEGIN
+   SELECT ROUND(sum(rawMaterialBatch.cost_value), 2) into costValue FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
+   RETURN costValue;
+END;
+$costValue$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION rawMaterialMeasurement (id integer)
+RETURNS measurement AS $measurement$
+declare
+	measurement measurement;
+BEGIN
+   SELECT rawMaterialBatch.measurement into measurement FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0 ORDER BY rawMaterialBatch.id DESC LIMIT 1;
+   RETURN measurement;
+END;
+$measurement$ LANGUAGE plpgsql;
+
+-- Table
 CREATE TABLE IF NOT EXISTS raw_material_batches
 (
     id                  bigserial       NOT NULL,
@@ -226,7 +268,7 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     measurement         measurement     NOT NULL,
     quantity            decimal(12,2)   NOT NULL,
     unit_cost           decimal(12,2)   NOT NULL,
-    total_cost          decimal(15,2)   NOT NULL,
+    cost_value          decimal(15, 2)  GENERATED ALWAYS AS (unit_cost * stock) STORED,
     stock               decimal(12,2)   NOT NULL,
     employee_id         bigint          NOT NULL,
     created_at          timestamp       NOT NULL,
@@ -257,4 +299,37 @@ CREATE TABLE IF NOT EXISTS products
     deleted         bool default false      NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT products_barcode_key UNIQUE(barcode)
+);
+
+--
+-- Structure of the `product_batches` table
+-- Functions
+
+-- Table
+CREATE TABLE IF NOT EXISTS product_batches
+(
+    id                  bigserial       NOT NULL,
+    product_id          integer         NOT NULL,
+    warehouse_id        integer         NOT NULL,
+    entry_date          date            NOT NULL,
+    expiration_date     date,
+    quantity            integer         NOT NULL,
+    unit_cost           decimal(12,2)   NOT NULL,
+    cost_value          decimal(15, 2)  GENERATED ALWAYS AS (unit_cost * stock) STORED,
+    stock               integer         NOT NULL,
+    employee_id         bigint          NOT NULL,
+    created_at          timestamp       NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT product_batches_product_fkey FOREIGN KEY(product_id)
+    REFERENCES products(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT,
+    CONSTRAINT product_batches_warehouses_fkey FOREIGN KEY(warehouse_id)
+    REFERENCES warehouses(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT,
+    CONSTRAINT product_batches_employees_fkey FOREIGN KEY(employee_id)
+    REFERENCES employees(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT
 );

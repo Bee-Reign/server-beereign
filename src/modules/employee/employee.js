@@ -4,6 +4,7 @@ const moment = require('moment');
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
+const { ProductBatch } = require('../productBatch/productBatch');
 
 const EMPLOYEE_PROPERTIES = {
   id: {
@@ -70,6 +71,15 @@ Employee.hasMany(RawMaterialBatch, {
   sourceKey: 'id',
 });
 RawMaterialBatch.belongsTo(Employee, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
+});
+
+Employee.hasMany(ProductBatch, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
+});
+ProductBatch.belongsTo(Employee, {
   foreignKey: 'employeeId',
   sourceKey: 'id',
 });

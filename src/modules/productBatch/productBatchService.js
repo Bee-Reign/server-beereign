@@ -1,24 +1,25 @@
 const boom = require('@hapi/boom');
 const Op = require('sequelize/lib/operators');
 
-const { RawMaterial } = require('../rawMaterial/rawMaterial');
+const { Product } = require('../product/product');
 const { Warehouse } = require('../warehouse/warehouse');
-
-const { RawMaterialBatch } = require('./rawMaterialBatch');
+const { ProductBatch } = require('./productBatch');
 const { Employee } = require('../employee/employee');
+const { RawMaterialBatchService } = require('../rawMaterialBatch');
 
-class RawMaterialBatchService {
+const rawMaterialBatchService = new RawMaterialBatchService();
+
+class ProductBatchService {
   constructor() {}
 
   async findAll(limit = 15, offset = 0, order = 'ASC', type = 'inStock') {
     switch (type) {
       case 'inStock':
-        const inStock = await RawMaterialBatch.findAndCountAll({
+        const inStock = await ProductBatch.findAndCountAll({
           attributes: [
             'id',
             'entryDate',
             'expirationDate',
-            'measurement',
             'quantity',
             'unitCost',
             'stock',
@@ -35,7 +36,7 @@ class RawMaterialBatchService {
               attributes: ['id', 'name', 'lastName'],
             },
             {
-              model: RawMaterial,
+              model: Product,
               attributes: ['id', 'name'],
             },
             {
@@ -48,12 +49,11 @@ class RawMaterialBatchService {
         });
         return inStock;
       case 'empty':
-        const emptyStock = await RawMaterialBatch.findAndCountAll({
+        const emptyStock = await ProductBatch.findAndCountAll({
           attributes: [
             'id',
             'entryDate',
             'expirationDate',
-            'measurement',
             'quantity',
             'unitCost',
             'stock',
@@ -70,7 +70,7 @@ class RawMaterialBatchService {
               attributes: ['id', 'name', 'lastName'],
             },
             {
-              model: RawMaterial,
+              model: Product,
               attributes: ['id', 'name'],
             },
             {
@@ -83,12 +83,11 @@ class RawMaterialBatchService {
         });
         return emptyStock;
       case 'all':
-        const allStock = await RawMaterialBatch.findAndCountAll({
+        const allStock = await ProductBatch.findAndCountAll({
           attributes: [
             'id',
             'entryDate',
             'expirationDate',
-            'measurement',
             'quantity',
             'unitCost',
             'stock',
@@ -100,7 +99,7 @@ class RawMaterialBatchService {
               attributes: ['id', 'name', 'lastName'],
             },
             {
-              model: RawMaterial,
+              model: Product,
               attributes: ['id', 'name'],
             },
             {
@@ -117,11 +116,11 @@ class RawMaterialBatchService {
     }
   }
 
-  async findById(id, isPacking = true) {
-    if (isPacking) {
+  async findById(id, isOutput = true) {
+    if (isOutput) {
       const toDay = new Date().toISOString().substring(0, 10);
-      const rawMaterialBatch = await RawMaterialBatch.findOne({
-        attributes: ['id', 'measurement', 'unitCost', 'stock'],
+      const productBatch = await ProductBatch.findOne({
+        attributes: ['id', 'unitCost', 'stock'],
         where: {
           id,
           stock: {
@@ -130,73 +129,54 @@ class RawMaterialBatchService {
         },
         include: [
           {
-            model: RawMaterial,
+            model: Product,
             attributes: ['id', 'name'],
           },
         ],
       });
-      if (!rawMaterialBatch) {
-        throw boom.notFound('raw material batch not found');
+      if (!productBatch) {
+        throw boom.notFound('product batch not found');
       }
-      return rawMaterialBatch;
+      return productBatch;
     }
-    const rawMaterialBatch = await RawMaterialBatch.findOne({
-      attributes: ['id', 'expirationDate', 'measurement', 'unitCost', 'stock'],
+    const productBatch = await ProductBatch.findOne({
+      attributes: ['id', 'expirationDate', 'unitCost', 'stock'],
       where: {
         id,
       },
       include: [
         {
-          model: RawMaterial,
+          model: Product,
           attributes: ['id', 'name'],
         },
       ],
     });
-    if (!rawMaterialBatch) {
-      throw boom.notFound('raw material batch not found');
+    if (!productBatch) {
+      throw boom.notFound('product batch not found');
     }
-    return rawMaterialBatch;
+    return productBatch;
   }
 
   async create(sub, data) {
     data.employeeId = sub;
     data.stock = data.quantity;
-    const rawMaterialBatch = await RawMaterialBatch.create(data);
-    return rawMaterialBatch;
-  }
-
-  async update(id, data) {
-    const rawMaterialBatch = await this.findById(id, false);
-    await rawMaterialBatch.update(data);
-    return rawMaterialBatch;
-  }
-
-  async updateBatches(batches) {
-    const t = await RawMaterialBatch.sequelize.transaction();
-    let rawMaterialBatch;
+    const t = await ProductBatch.sequelize.transaction();
     try {
-      for (let i in batches) {
-        const {
-          totalCost,
-          unitCost,
-          rawMaterialId,
-          createdAt,
-          employeeId,
-          ...data
-        } = batches[i];
-        rawMaterialBatch = await RawMaterialBatch.findByPk(data.id);
-        if (Number(rawMaterialBatch.stock) < Number(data.quantityUsed))
-          throw boom.badRequest('the quantity used is greater than the stock');
-        data.stock -= data.quantityUsed;
-        await rawMaterialBatch.update(data, { transaction: t });
-      }
+      const productBatch = await ProductBatch.create(data, { transaction: t });
+      await rawMaterialBatchService.updateBatches(data.batches);
       await t.commit();
+      return productBatch;
     } catch (err) {
       await t.rollback();
       throw err;
     }
-    return true;
+  }
+
+  async update(id, data) {
+    const productBatch = await this.findById(id);
+    await productBatch.update(data);
+    return productBatch;
   }
 }
 
-module.exports = RawMaterialBatchService;
+module.exports = ProductBatchService;

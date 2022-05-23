@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
+const { ProductBatch } = require('../productBatch/productBatch');
 
 const PRODUCT_PROPERTIES = {
   id: {
@@ -47,6 +48,16 @@ Product.init(PRODUCT_PROPERTIES, {
   modelName: models.product.modelName,
   tableName: models.product.tableName,
 });
+
+Product.hasMany(ProductBatch, {
+  foreignKey: 'productId',
+  sourceKey: 'id',
+});
+ProductBatch.belongsTo(Product, {
+  foreignKey: 'productId',
+  sourceKey: 'id',
+});
+
 module.exports = {
   Product,
   PRODUCT_PROPERTIES,

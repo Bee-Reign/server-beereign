@@ -3,22 +3,19 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const {
-  config: { Enum },
-} = require('../../app/config/config');
-const RAW_MATERIAL_PROPERTIES = {
+const PRODUCT_BATCH_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  rawMaterialId: {
+  productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'raw_material_id',
+    field: 'product_id',
     references: {
-      model: models.rawMaterial.tableName,
+      model: models.product.tableName,
       key: 'id',
     },
   },
@@ -48,12 +45,8 @@ const RAW_MATERIAL_PROPERTIES = {
         : 'does not expire';
     },
   },
-  measurement: {
-    type: DataTypes.ENUM(Enum.spanish),
-    allowNull: false,
-  },
   quantity: {
-    type: DataTypes.DECIMAL(12, 2),
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   unitCost: {
@@ -66,7 +59,7 @@ const RAW_MATERIAL_PROPERTIES = {
     field: 'cost_value',
   },
   stock: {
-    type: DataTypes.DECIMAL(12, 2),
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   employeeId: {
@@ -85,16 +78,16 @@ const RAW_MATERIAL_PROPERTIES = {
   },
 };
 
-class RawMaterialBatch extends Model {}
+class ProductBatch extends Model {}
 
-RawMaterialBatch.init(RAW_MATERIAL_PROPERTIES, {
+ProductBatch.init(PRODUCT_BATCH_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: models.rawMaterialBatch.modelName,
-  tableName: models.rawMaterialBatch.tableName,
+  modelName: models.productBatch.modelName,
+  tableName: models.productBatch.tableName,
 });
 
 module.exports = {
-  RawMaterialBatch,
-  RAW_MATERIAL_PROPERTIES,
+  ProductBatch,
+  PRODUCT_BATCH_PROPERTIES,
 };
