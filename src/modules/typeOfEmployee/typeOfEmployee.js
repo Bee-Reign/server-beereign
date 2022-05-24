@@ -3,6 +3,9 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const { Employee } = require('../employee/employee');
+const {
+  TypeOfEmployeeModule,
+} = require('../typeOfEmployeeModule/typeOfEmployeeModule');
 
 const TYPE_OF_EMPLOYEE_PROPERTIES = {
   id: {
@@ -36,8 +39,23 @@ TypeOfEmployee.init(TYPE_OF_EMPLOYEE_PROPERTIES, {
   tableName: models.typeOfEmployee.tableName,
 });
 
-TypeOfEmployee.hasMany(Employee, {foreignKey: 'typeOfEmployeeId', sourceKey: 'id'});
-Employee.belongsTo(TypeOfEmployee, {foreignKey: 'typeOfEmployeeId', sourceKey: 'id'});
+TypeOfEmployee.hasMany(Employee, {
+  foreignKey: 'typeOfEmployeeId',
+  sourceKey: 'id',
+});
+Employee.belongsTo(TypeOfEmployee, {
+  foreignKey: 'typeOfEmployeeId',
+  sourceKey: 'id',
+});
+
+TypeOfEmployee.hasMany(TypeOfEmployeeModule, {
+  foreignKey: 'typeOfEmployeeId',
+  sourceKey: 'id',
+});
+TypeOfEmployeeModule.belongsTo(TypeOfEmployee, {
+  foreignKey: 'typeOfEmployeeId',
+  sourceKey: 'id',
+});
 
 module.exports = {
   TypeOfEmployee,

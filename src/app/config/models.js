@@ -39,6 +39,14 @@ const models = {
     modelName: 'productBatch',
     tableName: 'product_batches',
   },
+  module: {
+    modelName: 'module',
+    tableName: 'modules',
+  },
+  typeOfEmployeeModule: {
+    modelName: 'typeOfEmployeeModule',
+    tableName: 'type_of_employee_modules',
+  },
 };
 
 module.exports = {

@@ -3,7 +3,7 @@ const Joi = require('joi');
 const id = Joi.number().unsafe().max(9223372036854775807);
 const name = Joi.string().max(20);
 const lastName = Joi.string().max(20);
-const cellPhone = Joi.string().max(20);
+const cellPhone = Joi.string().max(20).allow('');
 const email = Joi.string().max(256).email();
 const password = Joi.string().max(60).min(8);
 const typeOfEmployeeId = Joi.number().integer().positive().max(32767);
@@ -20,7 +20,7 @@ const getEmployeeSchema = Joi.object({
 const createEmployeeSchema = Joi.object({
   name: name.required(),
   lastName: lastName.required(),
-  cellPhone: cellPhone,
+  cellPhone,
   email: email.required(),
   password: password.required(),
   typeOfEmployeeId: typeOfEmployeeId.required(),

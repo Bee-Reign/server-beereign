@@ -4,26 +4,36 @@ const TypeOfEmployeeService = require('./typeOfEmployeeService');
 const validatorHandler = require('../../app/middlewares/validatorHandler');
 
 const {
-  getTypeOfEmployeeSchema,
-  createTypeOfEmployeeSchema,
-  updateTypeOfEmployeeSchema,
+  getByIdSchema,
+  createSchema,
+  updateSchema,
+  querySchema,
 } = require('./typeOfEmployeeDto');
 
 const router = Router();
 const typeOfEmployeeService = new TypeOfEmployeeService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const typesOfEmployee = await typeOfEmployeeService.findAll();
-    res.status(200).json(typesOfEmployee);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  validatorHandler(querySchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const { limit, offset, filter } = req.query;
+      const typesOfEmployee = await typeOfEmployeeService.findAll(
+        limit,
+        offset,
+        filter
+      );
+      res.status(200).json(typesOfEmployee);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
-  validatorHandler(getTypeOfEmployeeSchema, 'params'),
+  validatorHandler(getByIdSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -37,7 +47,7 @@ router.get(
 
 router.post(
   '/',
-  validatorHandler(createTypeOfEmployeeSchema, 'body'),
+  validatorHandler(createSchema, 'body'),
   async (req, res, next) => {
     try {
       const { deleted, ...data } = req.body;
@@ -55,8 +65,8 @@ router.post(
 
 router.patch(
   '/:id',
-  validatorHandler(getTypeOfEmployeeSchema, 'params'),
-  validatorHandler(updateTypeOfEmployeeSchema, 'body'),
+  validatorHandler(getByIdSchema, 'params'),
+  validatorHandler(updateSchema, 'body'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -71,7 +81,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  validatorHandler(getTypeOfEmployeeSchema, 'params'),
+  validatorHandler(getByIdSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;

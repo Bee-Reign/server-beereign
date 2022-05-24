@@ -17,6 +17,63 @@ INSERT INTO types_of_employee (name, description, deleted) VALUES
 ('administrador', 'tiene acceso global al sistema', false);
 
 --
+-- Structure of the `modules` table
+CREATE TABLE IF NOT EXISTS modules
+(
+    id          smallserial        NOT NULL,
+    name        varchar(50)        NOT NULL,
+    path        varchar(50)        NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT modules_name_key UNIQUE(name),
+    CONSTRAINT modules_path_key UNIQUE(path)
+);
+
+--
+-- Data for the table `modules`
+
+INSERT INTO modules (name, path) VALUES
+('Apiarios', '/apiary'),
+('Bodegas', '/warehouse'),
+('Embalaje', '/packing'),
+('Empleados', '/employee'),
+('Entrada de Materia Prima', '/raw-material-input'),
+('Inventario de Materia Prima', '/raw-material'),
+('Inventario de Productos', '/product'),
+('Lotes de Materia Prima', '/raw-material-batch'),
+('Lotes de Productos', '/product-batch'),
+('Salida de Productos', '/product-output'),
+('Tipos de Empleado', '/type-of-employee');
+
+--
+-- Structure of the `type_of_employee_modules` table
+CREATE TABLE IF NOT EXISTS type_of_employee_modules
+(
+    type_of_employee_id   smallint           NOT NULL,
+    module_id             smallint           NOT NULL,
+    CONSTRAINT employee_type_fkey FOREIGN KEY(type_of_employee_id)
+    REFERENCES types_of_employee(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT,
+    CONSTRAINT module_fkey FOREIGN KEY(module_id)
+    REFERENCES modules(id) MATCH SIMPLE
+);
+
+--
+-- Data for the table `type_of_employee_modules`
+INSERT INTO type_of_employee_modules(type_of_employee_id, module_id) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11);
+
+--
 -- Structure of the `employees` table
 CREATE TABLE IF NOT EXISTS employees
 (
@@ -304,7 +361,35 @@ CREATE TABLE IF NOT EXISTS products
 --
 -- Structure of the `product_batches` table
 -- Functions
+CREATE OR REPLACE FUNCTION productStockById (id integer)
+RETURNS integer AS $stock$
+declare
+	stock integer;
+BEGIN
+   SELECT sum(productBatches.stock) into stock FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
+   RETURN stock;
+END;
+$stock$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION productAverageCost (id integer)
+RETURNS decimal(12,2) AS $averageCost$
+declare
+	averageCost decimal(12,2);
+BEGIN
+   SELECT ROUND(AVG(productBatches.unit_cost), 2) into averageCost FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
+   RETURN averageCost;
+END;
+$averageCost$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION productCostValue (id integer)
+RETURNS decimal(15,2) AS $costValue$
+declare
+	costValue decimal(12,2);
+BEGIN
+   SELECT ROUND(sum(productBatches.cost_value), 2) into costValue FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
+   RETURN costValue;
+END;
+$costValue$ LANGUAGE plpgsql;
 -- Table
 CREATE TABLE IF NOT EXISTS product_batches
 (

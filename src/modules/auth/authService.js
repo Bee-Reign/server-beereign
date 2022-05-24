@@ -6,8 +6,10 @@ const {
   config: { Server },
 } = require('../../app/config');
 const { EmployeeService } = require('../employee');
+const { TypeOfEmployeeModuleService } = require('../typeOfEmployeeModule');
 
 const employeeService = new EmployeeService();
+const typeOfEmployeeModuleService = new TypeOfEmployeeModuleService();
 
 class AuthService {
   async getEmployee(email, password) {
@@ -36,8 +38,13 @@ class AuthService {
     };
   }
 
-  async getEmployeeProfile(id){
+  async getEmployeeProfile(id) {
     const employee = await employeeService.findById(id);
+    const modules =
+      await typeOfEmployeeModuleService.findAllModulesByEmployeeId(
+        employee.dataValues.typeOfEmployee.id
+      );
+    employee.dataValues.modules = modules;
     return employee;
   }
 }

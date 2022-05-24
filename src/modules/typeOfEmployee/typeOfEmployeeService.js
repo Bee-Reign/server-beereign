@@ -1,4 +1,5 @@
 const boom = require('@hapi/boom');
+const Op = require('sequelize/lib/operators');
 
 const { TypeOfEmployee } = require('./typeOfEmployee');
 
@@ -18,24 +19,32 @@ class TypeOfEmployeeService {
     }
   }
 
-  async findAll() {
-    const typesOfEmployee = await TypeOfEmployee.findAll({
-      attributes: ['id', 'name', 'description'],
-      order: [['id', 'ASC']],
-      where: {
-        deleted: false,
-      },
-    });
-    return typesOfEmployee;
-  }
-
-  async findAllName() {
-    const typesOfEmployee = await TypeOfEmployee.findAll({
+  async findAll(limit = null, offset = null, filter = '') {
+    if (limit === null || offset === null) {
+      const typesOfEmployee = await TypeOfEmployee.findAll({
+        attributes: ['id', 'name'],
+        order: [['id', 'ASC']],
+        where: {
+          deleted: false,
+          name: {
+            [Op.like]: '%' + filter + '%',
+          },
+        },
+        limit: 25,
+      });
+      return typesOfEmployee;
+    }
+    const typesOfEmployee = await TypeOfEmployee.findAndCountAll({
       attributes: ['id', 'name'],
       order: [['id', 'ASC']],
       where: {
         deleted: false,
+        name: {
+          [Op.like]: '%' + filter + '%',
+        },
       },
+      limit: limit,
+      offset: offset,
     });
     return typesOfEmployee;
   }
