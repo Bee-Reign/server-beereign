@@ -3,6 +3,7 @@ const passport = require('passport');
 const router = Router();
 
 //Import modules
+const { moduleRouter } = require('../../modules');
 const { authRouter } = require('../../modules/auth');
 const { typeOfEmployeeRouter } = require('../../modules/typeOfEmployee');
 const { employeeRouter } = require('../../modules/employee');
@@ -20,13 +21,18 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   function (req, res) {
     res.status(200).json({
-      message: 'the bee is born',
+      message: 'BeeReign Software',
     });
   }
 );
 
 //System routes
 router.use('/v1/auth', authRouter);
+router.use(
+  '/v1/modules',
+  passport.authenticate('jwt', { session: false }),
+  moduleRouter
+);
 router.use(
   '/v1/types-of-employee',
   passport.authenticate('jwt', { session: false }),

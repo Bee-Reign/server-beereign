@@ -149,6 +149,10 @@ class ProductBatchService {
           model: Product,
           attributes: ['id', 'name'],
         },
+        {
+          model: Warehouse,
+          attributes: ['id', 'name'],
+        },
       ],
     });
     if (!productBatch) {

@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS types_of_employee
 (
     id          smallserial        NOT NULL,
-    name        varchar(50)        NOT NULL,
+    name        varchar(30)        NOT NULL,
     description varchar(255)       NOT NULL,
     deleted     bool default false NOT NULL,
     PRIMARY KEY(id),
@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS type_of_employee_modules
     module_id             smallint           NOT NULL,
     CONSTRAINT employee_type_fkey FOREIGN KEY(type_of_employee_id)
     REFERENCES types_of_employee(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT,
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
     CONSTRAINT module_fkey FOREIGN KEY(module_id)
     REFERENCES modules(id) MATCH SIMPLE
 );

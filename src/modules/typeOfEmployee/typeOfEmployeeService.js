@@ -2,7 +2,9 @@ const boom = require('@hapi/boom');
 const Op = require('sequelize/lib/operators');
 
 const { TypeOfEmployee } = require('./typeOfEmployee');
+const { TypeOfEmployeeModuleService } = require('../typeOfEmployeeModule');
 
+const typeOfEmployeeModuleService = new TypeOfEmployeeModuleService();
 class TypeOfEmployeeService {
   constructor() {
     //
@@ -63,15 +65,37 @@ class TypeOfEmployeeService {
     return typeOfEmployee;
   }
 
+  async findAllModulesByTypeOfEmployee(id) {
+    const modules =
+      await typeOfEmployeeModuleService.findAllModulesByTypeOfEmployee(id);
+    return modules;
+  }
+
   async create(data) {
     await this.typeNameExist(data.name);
-    const typeOfEmployee = await TypeOfEmployee.create(data);
-    return typeOfEmployee;
+    try {
+      const typeOfEmployee = await TypeOfEmployee.create(data);
+      await typeOfEmployeeModuleService.insertModulesFromTypeOfEmployee(
+        data.modules,
+        typeOfEmployee.id
+      );
+      delete typeOfEmployee.dataValues.deleted;
+      return typeOfEmployee;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async update(id, data) {
     const typeOfEmployee = await this.findById(id);
+    if (typeOfEmployee.name != data.name) {
+      await this.typeNameExist(data.name);
+    }
     await typeOfEmployee.update(data);
+    await typeOfEmployeeModuleService.updateModulesFromTypeOfEmployee(
+      data.modules,
+      typeOfEmployee.id
+    );
     return typeOfEmployee;
   }
 

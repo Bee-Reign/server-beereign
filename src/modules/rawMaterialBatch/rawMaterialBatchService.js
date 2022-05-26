@@ -118,7 +118,7 @@ class RawMaterialBatchService {
   }
 
   async findById(id, isPacking = true) {
-    if (isPacking) {
+    if (isPacking === true) {
       const toDay = new Date().toISOString().substring(0, 10);
       const rawMaterialBatch = await RawMaterialBatch.findOne({
         attributes: ['id', 'measurement', 'unitCost', 'stock'],
@@ -141,13 +141,25 @@ class RawMaterialBatchService {
       return rawMaterialBatch;
     }
     const rawMaterialBatch = await RawMaterialBatch.findOne({
-      attributes: ['id', 'expirationDate', 'measurement', 'unitCost', 'stock'],
+      attributes: {
+        exclude: [
+          'rawMaterialId',
+          'warehouseId',
+          'employeeId',
+          'createdAt',
+          'totalCost',
+        ],
+      },
       where: {
         id,
       },
       include: [
         {
           model: RawMaterial,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Warehouse,
           attributes: ['id', 'name'],
         },
       ],
@@ -165,7 +177,8 @@ class RawMaterialBatchService {
     return rawMaterialBatch;
   }
 
-  async update(id, data) {
+  async update(sub, id, data) {
+    data.employeeId = sub;
     const rawMaterialBatch = await this.findById(id, false);
     await rawMaterialBatch.update(data);
     return rawMaterialBatch;

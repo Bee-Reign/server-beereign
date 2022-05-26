@@ -15,6 +15,7 @@ const measurement = Joi.string()
   .valid('ONZAS')
   .valid('UNIDADES');
 const quantity = Joi.number().positive();
+const stock = Joi.number().positive();
 const unitCost = Joi.number().positive();
 
 const limit = Joi.number().integer().min(2);
@@ -41,6 +42,17 @@ const createSchema = Joi.object({
   unitCost: unitCost.required(),
 });
 
+const updateSchema = Joi.object({
+  rawMaterialId: rawMaterialId.required(),
+  warehouseId: warehouseId.required(),
+  entryDate: entryDate.required(),
+  expirationDate,
+  measurement: measurement.required(),
+  quantity: quantity.required(),
+  stock: stock.required(),
+  unitCost: unitCost.required(),
+});
+
 const querySchema = Joi.object({
   limit,
   offset,
@@ -52,5 +64,6 @@ const querySchema = Joi.object({
 module.exports = {
   getSchema,
   createSchema,
+  updateSchema,
   querySchema,
 };

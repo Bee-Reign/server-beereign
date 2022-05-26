@@ -32,6 +32,21 @@ router.get(
 );
 
 router.get(
+  '/:id/modules',
+  validatorHandler(getByIdSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const modules =
+        await typeOfEmployeeService.findAllModulesByTypeOfEmployee(id);
+      res.status(200).json(modules);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
   '/:id',
   validatorHandler(getByIdSchema, 'params'),
   async (req, res, next) => {
