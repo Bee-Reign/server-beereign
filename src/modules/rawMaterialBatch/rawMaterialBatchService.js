@@ -14,15 +14,9 @@ class RawMaterialBatchService {
     switch (type) {
       case 'inStock':
         const inStock = await RawMaterialBatch.findAndCountAll({
-          attributes: [
-            'id',
-            'entryDate',
-            'expirationDate',
-            'measurement',
-            'quantity',
-            'unitCost',
-            'stock',
-          ],
+          attributes: {
+            exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
+          },
           order: [['entryDate', order]],
           where: {
             stock: {
@@ -49,15 +43,9 @@ class RawMaterialBatchService {
         return inStock;
       case 'empty':
         const emptyStock = await RawMaterialBatch.findAndCountAll({
-          attributes: [
-            'id',
-            'entryDate',
-            'expirationDate',
-            'measurement',
-            'quantity',
-            'unitCost',
-            'stock',
-          ],
+          attributes: {
+            exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
+          },
           order: [['entryDate', order]],
           where: {
             stock: {
@@ -84,15 +72,9 @@ class RawMaterialBatchService {
         return emptyStock;
       case 'all':
         const allStock = await RawMaterialBatch.findAndCountAll({
-          attributes: [
-            'id',
-            'entryDate',
-            'expirationDate',
-            'measurement',
-            'quantity',
-            'unitCost',
-            'stock',
-          ],
+          attributes: {
+            exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
+          },
           order: [['entryDate', order]],
           include: [
             {
@@ -119,7 +101,6 @@ class RawMaterialBatchService {
 
   async findById(id, isPacking = true) {
     if (isPacking === true) {
-      const toDay = new Date().toISOString().substring(0, 10);
       const rawMaterialBatch = await RawMaterialBatch.findOne({
         attributes: ['id', 'measurement', 'unitCost', 'stock'],
         where: {

@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS modules
 INSERT INTO modules (name, path) VALUES
 ('Apiarios', '/apiary'),
 ('Bodegas', '/warehouse'),
-('Embalaje', '/packing'),
+('Envasado', '/packing'),
 ('Empleados', '/employee'),
 ('Entrada de Materia Prima', '/raw-material-input'),
 ('Inventario de Materia Prima', '/raw-material'),
@@ -403,6 +403,7 @@ CREATE TABLE IF NOT EXISTS product_batches
     cost_value          decimal(15, 2)  GENERATED ALWAYS AS (unit_cost * stock) STORED,
     stock               integer         NOT NULL,
     employee_id         bigint          NOT NULL,
+    is_finished         boolean         NOT NULL,
     created_at          timestamp       NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT product_batches_product_fkey FOREIGN KEY(product_id)

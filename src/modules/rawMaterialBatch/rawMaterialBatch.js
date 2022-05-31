@@ -36,7 +36,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
     field: 'entry_date',
     get() {
-      return moment(this.dataValues.entryDate).format('YYYY-MM-D');
+      return moment(this.dataValues.entryDate).format('YYYY-MM-DD');
     },
   },
   expirationDate: {
@@ -44,7 +44,7 @@ const RAW_MATERIAL_PROPERTIES = {
     field: 'expiration_date',
     get() {
       return this.dataValues.expirationDate !== null
-        ? moment(this.dataValues.expirationDate).format('YYYY-MM-D')
+        ? moment(this.dataValues.expirationDate).format('YYYY-MM-DD')
         : 'does not expire';
     },
   },

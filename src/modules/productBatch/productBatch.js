@@ -33,7 +33,7 @@ const PRODUCT_BATCH_PROPERTIES = {
     allowNull: false,
     field: 'entry_date',
     get() {
-      return moment(this.dataValues.entryDate).format('D MM YYYY');
+      return moment(this.dataValues.entryDate).format('YYYY-MM-DD');
     },
   },
   expirationDate: {
@@ -41,7 +41,7 @@ const PRODUCT_BATCH_PROPERTIES = {
     field: 'expiration_date',
     get() {
       return this.dataValues.expirationDate !== null
-        ? moment(this.dataValues.expirationDate).format('D MM YYYY')
+        ? moment(this.dataValues.expirationDate).format('YYYY-MM-DD')
         : 'does not expire';
     },
   },
@@ -66,6 +66,11 @@ const PRODUCT_BATCH_PROPERTIES = {
     type: DataTypes.BIGINT,
     allowNull: false,
     field: 'employee_id',
+  },
+  isFinished: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    field: 'is_finished',
   },
   createdAt: {
     type: DataTypes.DATE,

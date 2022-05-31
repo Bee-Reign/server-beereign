@@ -42,7 +42,7 @@ router.get(
       const { isPacking } = req.query;
       const rawMaterialBatch = await rawMaterialBatchService.findById(
         id,
-        isPacking
+        isPacking == 'true'
       );
       res.status(200).json(rawMaterialBatch);
     } catch (error) {

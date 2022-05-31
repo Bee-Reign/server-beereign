@@ -10,31 +10,16 @@ const stock = Joi.number().integer().positive();
 const unitCost = Joi.number().positive();
 const isFinished = Joi.boolean();
 const batches = Joi.array();
-
 const limit = Joi.number().integer().min(2);
 const offset = Joi.number().integer().min(0);
-const order = Joi.string().alphanum().valid('DESC').valid('ASC');
-const type = Joi.string()
-  .alphanum()
-  .valid('inStock')
-  .valid('empty')
-  .valid('inProcess')
-  .valid('all');
-const isOutput = Joi.boolean();
+
+const querySchema = Joi.object({
+  limit,
+  offset,
+});
 
 const getSchema = Joi.object({
   id: id.required(),
-});
-
-const createSchema = Joi.object({
-  productId: productId.required(),
-  warehouseId: warehouseId.required(),
-  entryDate: entryDate.required(),
-  expirationDate,
-  quantity: quantity.required(),
-  unitCost: unitCost.required(),
-  isFinished: isFinished.required(),
-  batches: batches.required(),
 });
 
 const updateSchema = Joi.object({
@@ -46,19 +31,11 @@ const updateSchema = Joi.object({
   unitCost: unitCost.required(),
   stock: stock.required(),
   isFinished: isFinished.required(),
-});
-
-const querySchema = Joi.object({
-  limit,
-  offset,
-  order,
-  type,
-  isOutput,
+  batches: batches.required(),
 });
 
 module.exports = {
-  getSchema,
-  createSchema,
-  updateSchema,
   querySchema,
+  getSchema,
+  updateSchema,
 };
