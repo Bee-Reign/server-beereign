@@ -17,7 +17,7 @@ class TypeOfEmployeeService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('type of employee already exist');
     }
   }
 

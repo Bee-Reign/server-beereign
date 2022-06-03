@@ -13,7 +13,6 @@ const { apiaryRouter } = require('../../modules/apiary');
 const { rawMaterialRouter } = require('../../modules/rawMaterial');
 const { warehouseRouter } = require('../../modules/warehouse');
 const { rawMaterialBatchRouter } = require('../../modules/rawMaterialBatch');
-const { packingRouter } = require('../../modules/packing');
 const { productRouter } = require('../../modules/product');
 const { productBatchRouter } = require('../../modules/productBatch');
 
@@ -22,7 +21,7 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   function (req, res) {
     res.status(200).json({
-      message: 'BeeReign Software',
+      message: '© 2022 · BeeReign · 0.1.0',
     });
   }
 );
@@ -78,11 +77,6 @@ router.use(
   '/v1/products',
   passport.authenticate('jwt', { session: false }),
   productRouter
-);
-router.use(
-  '/v1/packing',
-  passport.authenticate('jwt', { session: false }),
-  packingRouter
 );
 router.use(
   '/v1/product-batches',

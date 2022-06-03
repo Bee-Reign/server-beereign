@@ -5,10 +5,11 @@ const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
 const { ProductBatch } = require('../productBatch/productBatch');
+const { ProductOutput } = require('../productOutput/productOutput');
 
 const EMPLOYEE_PROPERTIES = {
   id: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
@@ -40,6 +41,11 @@ const EMPLOYEE_PROPERTIES = {
     type: DataTypes.SMALLINT,
     allowNull: false,
     field: 'type_of_employee_id',
+  },
+  recoveryToken: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'recovery_token',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -80,6 +86,15 @@ Employee.hasMany(ProductBatch, {
   sourceKey: 'id',
 });
 ProductBatch.belongsTo(Employee, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
+});
+
+Employee.hasMany(ProductOutput, {
+  foreignKey: 'employeeId',
+  sourceKey: 'id',
+});
+ProductOutput.belongsTo(Employee, {
   foreignKey: 'employeeId',
   sourceKey: 'id',
 });

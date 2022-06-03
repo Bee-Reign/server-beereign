@@ -33,4 +33,24 @@ router.post(
   }
 );
 
+router.post('/recovery', async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.recoveryPassword(email);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    const result = await authService.resetPassword(token, password);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

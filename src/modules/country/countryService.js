@@ -16,7 +16,7 @@ class CountryService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('country name already exist');
     }
   }
 

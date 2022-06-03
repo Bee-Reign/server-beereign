@@ -4,7 +4,7 @@ const moment = require('moment');
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const {
-  config: { Enum },
+  config: { Measurement },
 } = require('../../app/config/config');
 const RAW_MATERIAL_PROPERTIES = {
   id: {
@@ -49,7 +49,7 @@ const RAW_MATERIAL_PROPERTIES = {
     },
   },
   measurement: {
-    type: DataTypes.ENUM(Enum.spanish),
+    type: DataTypes.ENUM(Measurement.es),
     allowNull: false,
   },
   quantity: {
@@ -70,7 +70,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
   },
   employeeId: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.INTEGER,
     allowNull: false,
     field: 'employee_id',
   },

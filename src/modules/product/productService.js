@@ -21,7 +21,7 @@ class ProductService {
       },
     });
     if (ifExist) {
-      throw boom.conflict('duplicate key exception');
+      throw boom.conflict('product barcode already exist');
     }
   }
 

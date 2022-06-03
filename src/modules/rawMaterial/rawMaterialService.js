@@ -18,7 +18,7 @@ class RawMaterialService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('raw material code already exist');
     }
   }
 

@@ -2,6 +2,9 @@ const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const sendEmail = require('../../libs/nodemailer');
+const recoveryTemplate = require('./recoveryTemplate');
+
 const {
   config: { Server },
 } = require('../../app/config');
@@ -36,6 +39,49 @@ class AuthService {
     return {
       token,
     };
+  }
+
+  async recoveryPassword(email) {
+    const employee = await employeeService.findByEmail(email);
+    if (!employee) {
+      return null;
+    }
+    const subject = 'Password Recovery';
+    const name = `${employee.name} ${employee.lastName}`;
+    const payload = {
+      sub: employee.id,
+    };
+    const token = jwt.sign(payload, Server.recoverySecret, {
+      expiresIn: '15min',
+    });
+    await employeeService.update(employee.id, 'recovery', {
+      recoveryToken: token,
+    });
+    const url = `${Server.frontEndUrl}/?token=${token}`;
+    const result = await sendEmail(
+      email,
+      subject,
+      '',
+      recoveryTemplate(name, url)
+    );
+    return result;
+  }
+
+  async resetPassword(token, password) {
+    try {
+      const payload = jwt.verify(token, Server.recoverySecret);
+      const employee = await employeeService.findById(payload.sub);
+      if (employee.recoveryToken !== token) {
+        throw boom.unauthorized();
+      }
+      const result = await employeeService.updatePassword(
+        payload.sub,
+        password
+      );
+      return result;
+    } catch (err) {
+      throw boom.unauthorized();
+    }
   }
 
   async getEmployeeProfile(id) {

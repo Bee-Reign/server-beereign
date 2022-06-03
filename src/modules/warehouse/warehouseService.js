@@ -15,7 +15,7 @@ class WarehouseService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('warehouse name already exist');
     }
   }
 

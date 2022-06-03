@@ -1,5 +1,5 @@
 function logErrors(err, req, res, next) {
-  //console.log(err);
+  console.log(err);
   next(err);
 }
 
@@ -7,7 +7,7 @@ function errorHandler(err, req, res, next) {
   res.status(500).json({
     statusCode: 500,
     error: 'Internal Server Error',
-    message: 'contact the api administrator',
+    message: 'contact service administrator',
   });
 }
 

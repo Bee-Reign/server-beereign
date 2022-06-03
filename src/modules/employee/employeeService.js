@@ -19,7 +19,7 @@ class EmployeeService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('employee email already exist');
     }
   }
 
@@ -77,7 +77,15 @@ class EmployeeService {
 
   async findById(id) {
     const employee = await Employee.findOne({
-      attributes: ['id', 'name', 'lastName', 'cellPhone', 'email', 'createdAt'],
+      attributes: [
+        'id',
+        'name',
+        'lastName',
+        'cellPhone',
+        'email',
+        'recoveryToken',
+        'createdAt',
+      ],
       where: {
         id: id,
         deleted: false,
@@ -151,6 +159,9 @@ class EmployeeService {
         data.password = bcrypt.hashSync(data.password, salt);
         await employee.update(data);
         break;
+      case 'recovery':
+        await employee.update(data);
+        break;
       default:
         throw boom.badRequest('Bad Request');
     }
@@ -160,9 +171,15 @@ class EmployeeService {
     return employee;
   }
 
-  async resetPassword(email, password) {}
-
-  async updatePassword(code, password) {}
+  async updatePassword(id, password) {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    await this.update(id, 'recovery', {
+      password: hash,
+      recoveryToken: null,
+    });
+    return { message: 'password updated' };
+  }
 
   async disableEmployee(id) {
     const employee = await this.findById(id);

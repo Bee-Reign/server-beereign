@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-const Op  = require('sequelize/lib/operators');
+const Op = require('sequelize/lib/operators');
 const { Province } = require('./province');
 
 class ProvinceService {
@@ -13,7 +13,7 @@ class ProvinceService {
       },
     });
     if (ifExist) {
-      throw boom.badRequest('duplicate key exception');
+      throw boom.conflict('province name already exist');
     }
   }
 
@@ -26,7 +26,7 @@ class ProvinceService {
     return provinces;
   }
 
-  async findAllByCountryId(countryId, query = "") {
+  async findAllByCountryId(countryId, query = '') {
     const provinces = await Province.findAll({
       attributes: { exclude: ['countryId'] },
       order: [['name', 'ASC']],

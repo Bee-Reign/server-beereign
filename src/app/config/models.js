@@ -47,6 +47,14 @@ const models = {
     modelName: 'typeOfEmployeeModule',
     tableName: 'type_of_employee_modules',
   },
+  productOutput: {
+    modelName: 'productOutput',
+    tableName: 'product_outputs',
+  },
+  productOutputDetail: {
+    modelName: 'productOutputDetail',
+    tableName: 'product_output_details',
+  },
 };
 
 module.exports = {

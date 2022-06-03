@@ -3,6 +3,10 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
+const {
+  ProductOutputDetail,
+} = require('../productOutputDetail/productOutputDetail');
+
 const PRODUCT_BATCH_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
@@ -63,14 +67,9 @@ const PRODUCT_BATCH_PROPERTIES = {
     allowNull: false,
   },
   employeeId: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.INTEGER,
     allowNull: false,
     field: 'employee_id',
-  },
-  isFinished: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    field: 'is_finished',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -90,6 +89,15 @@ ProductBatch.init(PRODUCT_BATCH_PROPERTIES, {
   timestamps: false,
   modelName: models.productBatch.modelName,
   tableName: models.productBatch.tableName,
+});
+
+ProductBatch.hasMany(ProductOutputDetail, {
+  foreignKey: 'productBatchId',
+  sourceKey: 'id',
+});
+ProductOutputDetail.belongsTo(ProductBatch, {
+  foreignKey: 'productBatchId',
+  sourceKey: 'id',
 });
 
 module.exports = {
