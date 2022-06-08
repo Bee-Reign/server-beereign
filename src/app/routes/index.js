@@ -9,12 +9,12 @@ const { typeOfEmployeeRouter } = require('../../modules/typeOfEmployee');
 const { employeeRouter } = require('../../modules/employee');
 const { countryRouter } = require('../../modules/country');
 const { provinceRouter } = require('../../modules/province');
-const { apiaryRouter } = require('../../modules/apiary');
 const { rawMaterialRouter } = require('../../modules/rawMaterial');
 const { warehouseRouter } = require('../../modules/warehouse');
 const { rawMaterialBatchRouter } = require('../../modules/rawMaterialBatch');
 const { productRouter } = require('../../modules/product');
 const { productBatchRouter } = require('../../modules/productBatch');
+const { productOutputRouter } = require('../../modules/productOutput');
 
 router.get(
   '/',
@@ -54,11 +54,6 @@ router.use(
   provinceRouter
 );
 router.use(
-  '/v1/apiaries',
-  passport.authenticate('jwt', { session: false }),
-  apiaryRouter
-);
-router.use(
   '/v1/raw-materials',
   passport.authenticate('jwt', { session: false }),
   rawMaterialRouter
@@ -83,13 +78,18 @@ router.use(
   passport.authenticate('jwt', { session: false }),
   productBatchRouter
 );
+router.use(
+  '/v1/product-outputs',
+  passport.authenticate('jwt', { session: false }),
+  productOutputRouter
+);
 
 router.all(
   '*',
   passport.authenticate('jwt', { session: false }),
   function (req, res) {
-    res.status(404).json({
-      message: 'not found',
+    res.status(405).json({
+      message: 'Method Not Allowed',
     });
   }
 );

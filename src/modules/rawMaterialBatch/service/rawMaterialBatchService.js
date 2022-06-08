@@ -1,11 +1,11 @@
 const boom = require('@hapi/boom');
 const Op = require('sequelize/lib/operators');
 
-const { RawMaterial } = require('../rawMaterial/rawMaterial');
-const { Warehouse } = require('../warehouse/warehouse');
+const { RawMaterial } = require('../../rawMaterial/rawMaterial');
+const { Warehouse } = require('../../warehouse/warehouse');
 
-const { RawMaterialBatch } = require('./rawMaterialBatch');
-const { Employee } = require('../employee/employee');
+const { RawMaterialBatch } = require('../model/entity/rawMaterialBatch');
+const { Employee } = require('../../employee/employee');
 
 class RawMaterialBatchService {
   constructor() {}
@@ -19,6 +19,7 @@ class RawMaterialBatchService {
           },
           order: [['entryDate', order]],
           where: {
+            deleted: false,
             stock: {
               [Op.gt]: 0,
             },
@@ -48,6 +49,7 @@ class RawMaterialBatchService {
           },
           order: [['entryDate', order]],
           where: {
+            deleted: false,
             stock: {
               [Op.lte]: 0,
             },
@@ -76,6 +78,9 @@ class RawMaterialBatchService {
             exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
           },
           order: [['entryDate', order]],
+          where: {
+            deleted: false,
+          },
           include: [
             {
               model: Employee,
@@ -105,6 +110,7 @@ class RawMaterialBatchService {
         attributes: ['id', 'measurement', 'unitCost', 'stock'],
         where: {
           id,
+          deleted: false,
           stock: {
             [Op.gt]: 0,
           },
@@ -133,6 +139,7 @@ class RawMaterialBatchService {
       },
       where: {
         id,
+        deleted: false,
       },
       include: [
         {
@@ -190,6 +197,13 @@ class RawMaterialBatchService {
       throw err;
     }
     return true;
+  }
+
+  async disableBatch(id) {
+    const rawMaterialBatch = await this.findById(id, false);
+    await rawMaterialBatch.update({
+      deleted: true,
+    });
   }
 }
 

@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 const {
   config: { Mail },
-} = require('../app/config/config');
+} = require('../app/config');
 
 async function sendEmail(email, subject, text, html) {
   const transporter = nodemailer.createTransport({

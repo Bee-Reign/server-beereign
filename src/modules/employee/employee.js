@@ -3,9 +3,9 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
+const { RawMaterialBatch } = require('../rawMaterialBatch/model/entity/rawMaterialBatch');
 const { ProductBatch } = require('../productBatch/productBatch');
-const { ProductOutput } = require('../productOutput/productOutput');
+const { ProductOutput } = require('../productOutput/model/entity/productOutput');
 
 const EMPLOYEE_PROPERTIES = {
   id: {

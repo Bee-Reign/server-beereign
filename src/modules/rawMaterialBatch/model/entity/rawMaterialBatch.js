@@ -1,11 +1,12 @@
 const { DataTypes, Model } = require('sequelize');
 const moment = require('moment');
 
-const sequelize = require('../../libs/sequelize');
-const { models } = require('../../app/config');
+const sequelize = require('../../../../libs/sequelize');
+const { models } = require('../../../../app/config');
 const {
-  config: { Measurement },
-} = require('../../app/config/config');
+  config: { locale },
+} = require('../../../../app/config');
+const measurement = require('../enum/measurement');
 const RAW_MATERIAL_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
@@ -49,7 +50,7 @@ const RAW_MATERIAL_PROPERTIES = {
     },
   },
   measurement: {
-    type: DataTypes.ENUM(Measurement.es),
+    type: DataTypes.ENUM(measurement[locale]),
     allowNull: false,
   },
   quantity: {
@@ -82,6 +83,11 @@ const RAW_MATERIAL_PROPERTIES = {
       return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
     },
     defaultValue: sequelize.literal('NOW()'),
+  },
+  deleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 };
 

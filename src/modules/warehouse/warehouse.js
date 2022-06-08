@@ -2,7 +2,7 @@ const { DataTypes, Model } = require('sequelize');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
+const { RawMaterialBatch } = require('../rawMaterialBatch/model/entity/rawMaterialBatch');
 const { ProductBatch } = require('../productBatch/productBatch');
 
 const WAREHOUSE_PROPERTIES = {

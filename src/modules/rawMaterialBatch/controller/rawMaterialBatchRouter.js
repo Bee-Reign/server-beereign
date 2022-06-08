@@ -1,14 +1,14 @@
 const { Router } = require('express');
 
-const RawMaterialBatchService = require('./rawMaterialBatchService');
-const validatorHandler = require('../../app/middlewares/validatorHandler');
+const RawMaterialBatchService = require('../service/rawMaterialBatchService');
+const validatorHandler = require('../../../app/middlewares/validatorHandler');
 
 const {
   getSchema,
   createSchema,
   updateSchema,
   querySchema,
-} = require('./rawMaterialBatchDto');
+} = require('../schema/rawMaterialBatchDto');
 
 const router = Router();
 const rawMaterialBatchService = new RawMaterialBatchService();
@@ -81,6 +81,20 @@ router.patch(
         data
       );
       res.status(200).json(rawMaterialBatch);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  '/:id',
+  validatorHandler(getSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      await rawMaterialBatchService.disableBatch(id);
+      res.status(200).end();
     } catch (error) {
       next(error);
     }

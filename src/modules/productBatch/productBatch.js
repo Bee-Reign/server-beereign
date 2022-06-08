@@ -5,7 +5,7 @@ const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
 const {
   ProductOutputDetail,
-} = require('../productOutputDetail/productOutputDetail');
+} = require('../productOutputDetail/model/entity/productOutputDetail');
 
 const PRODUCT_BATCH_PROPERTIES = {
   id: {
@@ -79,6 +79,11 @@ const PRODUCT_BATCH_PROPERTIES = {
       return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
     },
     defaultValue: sequelize.literal('NOW()'),
+  },
+  deleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 };
 

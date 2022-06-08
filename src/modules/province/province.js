@@ -2,7 +2,6 @@ const { DataTypes, Model } = require('sequelize');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { Apiary } = require('../apiary/apiary');
 const { Warehouse } = require('../warehouse/warehouse');
 
 const PROVINCE_PROPERTIES = {
@@ -37,9 +36,6 @@ Province.init(PROVINCE_PROPERTIES, {
   modelName: models.province.modelName,
   tableName: models.province.tableName,
 });
-
-Province.hasMany(Apiary, { foreignKey: 'provinceId', sourceKey: 'id' });
-Apiary.belongsTo(Province, { foreignKey: 'provinceId', sourceKey: 'id' });
 
 Province.hasMany(Warehouse, { foreignKey: 'provinceId', sourceKey: 'id' });
 Warehouse.belongsTo(Province, { foreignKey: 'provinceId', sourceKey: 'id' });

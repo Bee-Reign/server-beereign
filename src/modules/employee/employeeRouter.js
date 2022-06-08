@@ -7,6 +7,7 @@ const {
   createEmployeeSchema,
   updateEmployeeSchema,
   queryEmployeeSchema,
+  updatePasswordSchema,
 } = require('./employeeDto');
 
 const router = Router();
@@ -65,6 +66,22 @@ router.patch(
       const { update } = req.query;
       const { createdAt, deleted, ...data } = req.body;
       const employee = await employeeService.update(id, update, data);
+      res.status(200).json(employee);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch(
+  '/:id/password',
+  validatorHandler(getEmployeeSchema, 'params'),
+  validatorHandler(updatePasswordSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const employee = await employeeService.updatePassword(id, data.password);
       res.status(200).json(employee);
     } catch (error) {
       next(error);

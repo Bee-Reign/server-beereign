@@ -1,14 +1,15 @@
 const { DataTypes, Model } = require('sequelize');
 const moment = require('moment');
 
-const sequelize = require('../../libs/sequelize');
-const { models } = require('../../app/config');
+const sequelize = require('../../../../libs/sequelize');
 const {
   ProductOutputDetail,
-} = require('../productOutputDetail/productOutputDetail');
+} = require('../../../productOutputDetail/model/entity/productOutputDetail');
+const typeOfSale = require('../enum/typeOfSale');
 const {
-  config: { TypeOfSale },
-} = require('../../app/config');
+  config: { locale },
+  models,
+} = require('../../../../app/config');
 
 const PRODUCT_OUTPUT_PROPERTIES = {
   id: {
@@ -22,13 +23,14 @@ const PRODUCT_OUTPUT_PROPERTIES = {
     allowNull: false,
   },
   typeOfSale: {
-    type: DataTypes.ENUM(TypeOfSale.es),
+    type: DataTypes.ENUM(typeOfSale[locale]),
     allowNull: false,
     field: 'type_of_sale',
   },
   isPaid: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
+    field: 'is_paid',
   },
   cancelled: {
     type: DataTypes.BOOLEAN,
@@ -45,7 +47,7 @@ const PRODUCT_OUTPUT_PROPERTIES = {
     allowNull: false,
     field: 'created_at',
     get() {
-      return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
+      return moment(this.dataValues.createdAt).format('D-MM-YYYY HH:mm:ss');
     },
     defaultValue: sequelize.literal('NOW()'),
   },

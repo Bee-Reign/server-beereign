@@ -1,7 +1,12 @@
 require('dotenv').config();
 // The project configuration
 const config = {
+  // --- Backend infraestructure enviroment
+  // if it's different from dev, cors policies will block everything unless it's whitelisted
   env: process.env.NODE_ENV || 'dev',
+  // --- Lenguage of the backend service
+  locale: process.env.LOCALE || 'en_us',
+  // --- Express and libs configuration
   Server: {
     port: process.env.PORT || 8080,
     whitelist: process.env.CORS_URL,
@@ -9,6 +14,7 @@ const config = {
     jwtSecret: process.env.JWT_SECRET,
     recoverySecret: process.env.RECOVERY_SECRET,
   },
+  // --- Database only work with PostgreSQL
   Database: {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -16,20 +22,12 @@ const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
+  // --- Mail services
   Mail: {
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
     user: process.env.MAIL_USER,
     password: process.env.MAIL_USER_PASSWORD,
   },
-  Measurement: {
-    es: '"GALONES", "GRAMOS", "KILOGRAMOS", "LIBRAS", "LITROS", "ONZAS", "UNIDADES"',
-    en_us:
-      '"GALLONS", "GRAMS", "KILOGRAMS", "POUNDS", "LITERS", "OUNCES", "UNITS"',
-  },
-  TypeOfSale: {
-    es: '"CONTADO", "CRÉDITO"',
-    en_us: '"CASH", "CREDIT"',
-  },
 };
-module.exports = { config };
+module.exports = config;

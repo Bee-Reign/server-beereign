@@ -44,12 +44,12 @@ CREATE TABLE IF NOT EXISTS modules
     CONSTRAINT modules_name_key UNIQUE(name),
     CONSTRAINT modules_path_key UNIQUE(path)
 );
+GRANT SELECT ON TABLE modules TO beereign;
 
 --
 -- Data for the table `modules`
 
 INSERT INTO modules (name, path) VALUES
-('Apiarios', '/apiary'),
 ('Bodegas', '/warehouse'),
 ('Envasado', '/packing'),
 ('Empleados', '/employee'),
@@ -164,104 +164,6 @@ VALUES ('bocas del toro', 1),
 ('panamá', 1),
 ('veraguas', 1),
 ('panamá oeste', 1);
-
---
--- Structure of the `apiaries` table
-CREATE TABLE IF NOT EXISTS apiaries
-(
-    id              bigserial          NOT NULL,
-    name            varchar(50)        NOT NULL,
-    country_id      smallint           NOT NULL,
-    province_id     bigint             NOT NULL,
-    city            varchar(50)        NOT NULL,
-    location        point,
-    deleted         bool default false NOT NULL,
-    PRIMARY KEY(id),
-    CONSTRAINT apiaries_name_key UNIQUE(name),
-    CONSTRAINT apiaries_countries_fkey FOREIGN KEY(country_id)
-    REFERENCES countries(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT,
-    CONSTRAINT apiaries_provinces_fkey FOREIGN KEY(province_id)
-    REFERENCES provinces(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT
-);
-GRANT INSERT, SELECT, UPDATE ON TABLE apiaries TO beereign;
-
---
--- Structure of the `queen_bees` table
-CREATE TABLE IF NOT EXISTS queen_bees
-(
-    id              bigserial           NOT NULL,
-    race            varchar(50)         NOT NULL,
-    it_bought       bool                NOT NULL,
-    cost            decimal(7,2),
-    date_purchased  date,
-    is_death        bool default false  NOT NULL,
-    reason_of_death varchar(50),
-    created_at      timestamp           NOT NULL,
-    deleted         bool default false  NOT NULL,
-    PRIMARY KEY(id)
-);
-GRANT INSERT, SELECT, UPDATE ON TABLE queen_bees TO beereign;
-
---
--- Structure of the `types_of_beehives` table
-CREATE TABLE IF NOT EXISTS types_of_beehives
-(
-    id          smallserial         NOT NULL,
-    type        varchar(50)         NOT NULL,
-    deleted     bool default false  NOT NULL,
-    PRIMARY KEY(id),
-    CONSTRAINT types_of_beehives_type_key UNIQUE(type)
-);
-GRANT INSERT, SELECT, UPDATE ON TABLE types_of_beehives TO beereign;
-
---
--- Structure of the `beehives` table
-CREATE TABLE IF NOT EXISTS beehives
-(
-    id                      bigserial           NOT NULL,
-    type_of_beehive_id      smallint            NOT NULL,
-    it_bought               bool                NOT NULL,
-    cost                    decimal(10,2),
-    date_purchased          date,
-    queen_bee_id            bigint,
-    PRIMARY KEY(id),
-    CONSTRAINT beehives_types_of_beehives_fkey FOREIGN KEY(type_of_beehive_id)
-    REFERENCES types_of_beehives(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT,
-    CONSTRAINT beehives_queen_bees_fkey FOREIGN KEY(queen_bee_id)
-    REFERENCES queen_bees(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT
-);
-GRANT INSERT, SELECT, UPDATE ON TABLE beehives TO beereign;
-
---
--- Structure of the `harvests` table
-CREATE TABLE IF NOT EXISTS harvests
-(
-    id                  bigserial           NOT NULL,
-    date                date                NOT NULL,
-    quantity_of_panels  integer,
-    description         varchar(255),
-    it_done             bool default false  NOT NULL,
-    apiary_id           bigint              NOT NULL,
-    employee_id         integer             NOT NULL,
-    PRIMARY KEY(id),
-    CONSTRAINT harvests_apiaries_fkey FOREIGN KEY(apiary_id)
-    REFERENCES apiaries(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT,
-    CONSTRAINT harvests_employees_fkey FOREIGN KEY(employee_id)
-    REFERENCES employees(id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE RESTRICT
-);
-GRANT INSERT, SELECT, UPDATE ON TABLE harvests TO beereign;
 
 --
 -- Structure of the `raw_materials` table
@@ -431,17 +333,18 @@ $costValue$ LANGUAGE plpgsql;
 -- Table
 CREATE TABLE IF NOT EXISTS product_batches
 (
-    id                  bigserial       NOT NULL,
-    product_id          integer         NOT NULL,
-    warehouse_id        integer         NOT NULL,
-    entry_date          date            NOT NULL,
+    id                  bigserial             NOT NULL,
+    product_id          integer               NOT NULL,
+    warehouse_id        integer               NOT NULL,
+    entry_date          date                  NOT NULL,
     expiration_date     date,
-    quantity            integer         NOT NULL,
-    unit_cost           decimal(12,2)   NOT NULL,
-    cost_value          decimal(15, 2)  GENERATED ALWAYS AS (unit_cost * stock) STORED,
-    stock               integer         NOT NULL,
-    employee_id         integer         NOT NULL,
-    created_at          timestamp       NOT NULL,
+    quantity            integer               NOT NULL,
+    unit_cost           decimal(12,2)         NOT NULL,
+    cost_value          decimal(15, 2)        GENERATED ALWAYS AS (unit_cost * stock) STORED,
+    stock               integer               NOT NULL,
+    employee_id         integer               NOT NULL,
+    deleted             bool default false    NOT NULL,
+    created_at          timestamp             NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT product_batches_product_fkey FOREIGN KEY(product_id)
     REFERENCES products(id) MATCH SIMPLE

@@ -47,6 +47,10 @@ const updateLogin = Joi.object({
   password: password.required(),
 });
 
+const updatePasswordSchema = Joi.object({
+  password: password.required(),
+});
+
 const queryEmployeeSchema = Joi.object({
   limit,
   offset,
@@ -60,5 +64,6 @@ module.exports = {
   updateEmployeeSchema,
   updateProfile,
   updateLogin,
+  updatePasswordSchema,
   queryEmployeeSchema,
 };

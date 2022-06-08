@@ -13,7 +13,7 @@
     "infrastructure"
   ],
   "author": "bayyand",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "@hapi/boom": "^10.0.0",
     "bcrypt": "^5.0.1",
@@ -33,5 +33,9 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
+  },
+  "engines": {
+    "node": "~16",
+    "npm": "~8"
   }
 }

@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 
 const {
   config: { Database },
-} = require('../app/config/config');
+} = require('../app/config');
 
 const USER = encodeURIComponent(Database.user);
 const PASSWORD = encodeURIComponent(Database.password);

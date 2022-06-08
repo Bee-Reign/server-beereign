@@ -40,7 +40,10 @@ router.get(
     try {
       const { id } = req.params;
       const { isOutput } = req.query;
-      const productBatch = await productBatchService.findById(id, isOutput);
+      const productBatch = await productBatchService.findById(
+        id,
+        isOutput == 'true'
+      );
       res.status(200).json(productBatch);
     } catch (error) {
       next(error);
@@ -74,6 +77,20 @@ router.patch(
       const data = req.body;
       const ProductBatch = await productBatchService.update(sub, id, data);
       res.status(200).json(ProductBatch);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  '/:id',
+  validatorHandler(getSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      await productBatchService.disableBatch(id);
+      res.status(200).end();
     } catch (error) {
       next(error);
     }

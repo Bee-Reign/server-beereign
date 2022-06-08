@@ -1,7 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 
-const sequelize = require('../../libs/sequelize');
-const { models } = require('../../app/config');
+const sequelize = require('../../../../libs/sequelize');
+const { models } = require('../../../../app/config');
 
 const PRODUCT_OUTPUT_DETAIL = {
   productOutputId: {

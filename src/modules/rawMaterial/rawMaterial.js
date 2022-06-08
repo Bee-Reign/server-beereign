@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { RawMaterialBatch } = require('../rawMaterialBatch/rawMaterialBatch');
+const { RawMaterialBatch } = require('../rawMaterialBatch/model/entity/rawMaterialBatch');
 
 const RAW_MATERIAL_PROPERTIES = {
   id: {
