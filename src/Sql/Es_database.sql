@@ -1,21 +1,4 @@
 --
--- System role creation
-DO
-$do$
-BEGIN
-   IF EXISTS (
-      SELECT FROM pg_catalog.pg_roles
-      WHERE  rolname = 'beereign') THEN
-
-      RAISE NOTICE 'The role with the name {beereign} already exists';
-   ELSE
---                                      ************     ↓↓↓↓↓-> replace for security ↓↓↓     *************
-      CREATE ROLE beereign WITH LOGIN ENCRYPTED PASSWORD 'generate-and-replace-password';
-   END IF;
-END
-$do$;
-
---
 -- Structure of the `types_of_employee` table
 CREATE TABLE IF NOT EXISTS types_of_employee
 (
@@ -26,7 +9,6 @@ CREATE TABLE IF NOT EXISTS types_of_employee
     PRIMARY KEY(id),
     CONSTRAINT types_of_employee_name_key UNIQUE(name)
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE types_of_employee TO beereign;
 
 --
 -- Data for the table `types_of_employee`
@@ -44,7 +26,6 @@ CREATE TABLE IF NOT EXISTS modules
     CONSTRAINT modules_name_key UNIQUE(name),
     CONSTRAINT modules_path_key UNIQUE(path)
 );
-GRANT SELECT ON TABLE modules TO beereign;
 
 --
 -- Data for the table `modules`
@@ -74,7 +55,6 @@ CREATE TABLE IF NOT EXISTS type_of_employee_modules
     CONSTRAINT module_fkey FOREIGN KEY(module_id)
     REFERENCES modules(id) MATCH SIMPLE
 );
-GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE type_of_employee_modules TO beereign;
 
 --
 -- Data for the table `type_of_employee_modules`
@@ -88,8 +68,7 @@ INSERT INTO type_of_employee_modules(type_of_employee_id, module_id) VALUES
 (1, 7),
 (1, 8),
 (1, 9),
-(1, 10),
-(1, 11);
+(1, 10);
 
 --
 -- Structure of the `employees` table
@@ -112,7 +91,6 @@ CREATE TABLE IF NOT EXISTS employees
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE type_of_employee_modules TO beereign;
 
 -- employee records
 -- Default Email: admin@example.com
@@ -129,7 +107,6 @@ CREATE TABLE IF NOT EXISTS countries
     PRIMARY KEY(id),
     CONSTRAINT countries_name_key UNIQUE(name)
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE countries TO beereign;
 
 --
 -- Data for the table `countries`
@@ -149,7 +126,6 @@ CREATE TABLE IF NOT EXISTS provinces
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE provinces TO beereign;
 
 --
 -- Data for the table `provinces`
@@ -177,7 +153,6 @@ CREATE TABLE IF NOT EXISTS raw_materials
     PRIMARY KEY(id),
     CONSTRAINT raw_materials_code_key UNIQUE(code)
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE raw_materials TO beereign;
 
 --
 -- Structure of the `warehouses` table
@@ -200,7 +175,6 @@ CREATE TABLE IF NOT EXISTS warehouses
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE warehouses TO beereign;
 
 --
 -- Structure of the `measurements` ENUM
@@ -279,7 +253,6 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE raw_material_batches TO beereign;
 
 --
 -- Structure of the `products` table
@@ -294,7 +267,6 @@ CREATE TABLE IF NOT EXISTS products
     PRIMARY KEY(id),
     CONSTRAINT products_barcode_key UNIQUE(barcode)
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE products TO beereign;
 
 
 
@@ -359,7 +331,6 @@ CREATE TABLE IF NOT EXISTS product_batches
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE product_batches TO beereign;
 
 --
 -- Structure of the `typeofsale` ENUM
@@ -383,7 +354,6 @@ CREATE TABLE IF NOT EXISTS product_outputs
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE product_outputs TO beereign;
 
 --
 -- Structure of the `product_output_details` table
@@ -403,4 +373,3 @@ CREATE TABLE IF NOT EXISTS product_output_details
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
-GRANT INSERT, SELECT, UPDATE ON TABLE product_output_details TO beereign;

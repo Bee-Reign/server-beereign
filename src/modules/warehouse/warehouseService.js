@@ -89,6 +89,13 @@ class WarehouseService {
     delete warehouse.dataValues.deleted;
     return warehouse;
   }
+
+  async disable(id) {
+    const warehouse = await this.findById(id);
+    await warehouse.update({
+      deleted: true,
+    });
+  }
 }
 
 module.exports = WarehouseService;

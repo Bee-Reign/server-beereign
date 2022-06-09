@@ -76,6 +76,8 @@ router.delete(
   validatorHandler(getWarehouseSchema, 'params'),
   async (req, res, next) => {
     try {
+      const { id } = req.params;
+      await warehouseService.disable(id);
       res.status(200).end();
     } catch (error) {
       next(error);
