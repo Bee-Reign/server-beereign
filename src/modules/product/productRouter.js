@@ -29,10 +29,12 @@ router.get(
 router.get(
   '/:id',
   validatorHandler(getSchema, 'params'),
+  validatorHandler(querySchema, 'query'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const product = await productService.findById(id);
+      const { type } = req.query;
+      const product = await productService.findById(id, type);
       res.status(200).json(product);
     } catch (error) {
       next(error);

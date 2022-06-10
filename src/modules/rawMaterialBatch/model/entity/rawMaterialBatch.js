@@ -80,7 +80,7 @@ const RAW_MATERIAL_PROPERTIES = {
     allowNull: false,
     field: 'created_at',
     get() {
-      return moment(this.dataValues.createdAt).format('D MM YYYY HH:mm:ss');
+      return moment(this.dataValues.createdAt).format('DD MM YYYY HH:mm');
     },
     defaultValue: sequelize.literal('NOW()'),
   },

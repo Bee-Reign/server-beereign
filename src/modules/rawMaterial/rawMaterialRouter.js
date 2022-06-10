@@ -33,10 +33,12 @@ router.get(
 router.get(
   '/:id',
   validatorHandler(getRawMaterialSchema, 'params'),
+  validatorHandler(querySchema, 'query'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const rawMaterial = await rawMaterialService.findById(id);
+      const { type } = req.query;
+      const rawMaterial = await rawMaterialService.findById(id, type);
       res.status(200).json(rawMaterial);
     } catch (error) {
       next(error);

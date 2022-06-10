@@ -67,7 +67,20 @@ class ProductService {
     return data;
   }
 
-  async findById(id) {
+  async findById(id, type = 'id') {
+    if (type === 'barcode') {
+      const product = await Product.findOne({
+        attributes: { exclude: ['deleted'] },
+        where: {
+          barcode: id,
+          deleted: false,
+        },
+      });
+      if (!product) {
+        throw boom.notFound('product not found');
+      }
+      return product;
+    }
     const product = await Product.findOne({
       attributes: { exclude: ['deleted'] },
       where: {

@@ -64,7 +64,20 @@ class RawMaterialService {
     return data;
   }
 
-  async findById(id) {
+  async findById(id, type = 'id') {
+    if (type === 'code') {
+      const rawMaterial = await RawMaterial.findOne({
+        attributes: ['id', 'code', 'name', 'createdAt'],
+        where: {
+          code: id,
+          deleted: false,
+        },
+      });
+      if (!rawMaterial) {
+        throw boom.notFound('raw material not found');
+      }
+      return rawMaterial;
+    }
     const rawMaterial = await RawMaterial.findOne({
       attributes: ['id', 'code', 'name', 'createdAt'],
       where: {
