@@ -3,7 +3,9 @@ const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
 
 const { Product } = require('./product');
+const { ProductBatchService } = require('../productBatch');
 
+const productBatchService = new ProductBatchService();
 class ProductService {
   COUNT_QUERY =
     'SELECT count(*) AS count FROM products products WHERE (products.barcode LIKE :filter OR products.name LIKE :filter) AND products.deleted = false;';
@@ -65,6 +67,26 @@ class ProductService {
     data.count = count[0].count;
     data.rows = products;
     return data;
+  }
+
+  async findAllBatchesByProduct(id, type = 'id') {
+    if (type === 'barcode') {
+      const product = await Product.findOne({
+        where: {
+          barcode: id,
+          deleted: false,
+        },
+      });
+      if (!product) {
+        throw boom.notFound('product not found');
+      }
+      const productBatches = await productBatchService.findAllByProduct(
+        product.id
+      );
+      return productBatches;
+    }
+    const productBatches = await productBatchService.findAllByProduct(id);
+    return productBatches;
   }
 
   async findById(id, type = 'id') {

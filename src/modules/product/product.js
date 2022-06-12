@@ -17,7 +17,7 @@ const PRODUCT_PROPERTIES = {
     unique: true,
   },
   name: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING(50),
     allowNull: false,
   },
   description: {

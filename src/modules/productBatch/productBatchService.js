@@ -100,6 +100,30 @@ class ProductBatchService {
     }
   }
 
+  async findAllByProduct(id) {
+    const productBatches = await ProductBatch.findAll({
+      attributes: ['id', 'unitCost', 'stock'],
+      where: {
+        productId: id,
+        deleted: false,
+        stock: {
+          [Op.gt]: 0,
+        },
+      },
+      include: [
+        {
+          model: Product,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Warehouse,
+          attributes: ['id', 'name'],
+        },
+      ],
+    });
+    return productBatches;
+  }
+
   async findById(id, isOutput = true) {
     if (isOutput === true) {
       const productBatch = await ProductBatch.findOne({

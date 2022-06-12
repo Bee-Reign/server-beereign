@@ -42,6 +42,25 @@ router.get(
   }
 );
 
+router.get(
+  '/:id/batches',
+  validatorHandler(querySchema, 'query'),
+  validatorHandler(getSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { type } = req.query;
+      const productBatches = await productService.findAllBatchesByProduct(
+        id,
+        type
+      );
+      res.status(200).json(productBatches);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.post(
   '/',
   validatorHandler(createSchema, 'body'),

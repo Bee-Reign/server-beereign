@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS raw_materials
 (
     id              serial              NOT NULL,
     code            varchar(12),
-    name            varchar(100)        NOT NULL,
+    name            varchar(50)        NOT NULL,
     created_at      timestamp           NOT NULL,
     deleted         bool default false  NOT NULL,
     PRIMARY KEY(id),
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS products
 (
     id              serial                  NOT NULL,
     barcode         varchar(128),
-    name            varchar(100)            NOT NULL,
+    name            varchar(50)             NOT NULL,
     description     varchar(255),
     created_at      timestamp               NOT NULL,
     deleted         bool default false      NOT NULL,
