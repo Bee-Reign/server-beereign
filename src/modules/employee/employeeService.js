@@ -38,8 +38,13 @@ class EmployeeService {
         order: [['id', 'ASC']],
         where: {
           deleted: false,
-          name: {
-            [Op.like]: '%' + filter + '%',
+          [Op.or]: {
+            name: {
+              [Op.like]: '%' + filter + '%',
+            },
+            lastName: {
+              [Op.like]: '%' + filter + '%',
+            },
           },
         },
         limit: 25,

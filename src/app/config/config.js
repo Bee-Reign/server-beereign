@@ -20,6 +20,7 @@ const config = {
     port: process.env.DB_PORT,
     name: process.env.DB_NAME,
     user: process.env.DB_USER,
+    timezone: process.env.TIMEZONE,
     password: process.env.DB_PASSWORD,
   },
   // --- Mail services

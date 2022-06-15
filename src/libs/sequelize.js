@@ -11,6 +11,10 @@ const URI = `postgres://${USER}:${PASSWORD}@${Database.host}:${Database.port}/${
 // The connection pool is to a PostgreSQL database
 const connectionToDb = new Sequelize(URI, {
   dialect: 'postgres',
+  dialectOptions: {
+    useUTC: true,
+  },
+  timezone: Database.timezone,
   logging: false,
   ssl: false,
 });
