@@ -21,7 +21,7 @@ const createWarehouseSchema = Joi.object({
   provinceId: provinceId.required(),
   city: city.required(),
   location: location,
-});
+}).options({ abortEarly: false });
 
 const updateWarehouseSchema = Joi.object({
   name: name.required(),
@@ -29,7 +29,7 @@ const updateWarehouseSchema = Joi.object({
   provinceId: provinceId.required(),
   city: city.required(),
   location: location,
-});
+}).options({ abortEarly: false });
 
 const querySchema = Joi.object({
   limit,

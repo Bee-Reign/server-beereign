@@ -16,12 +16,12 @@ const getRawMaterialSchema = Joi.object({
 const createRawMaterialSchema = Joi.object({
   code: code,
   name: name.required(),
-});
+}).options({ abortEarly: false });
 
 const updateRawMaterialSchema = Joi.object({
   code: code,
   name: name.required(),
-});
+}).options({ abortEarly: false });
 
 const querySchema = Joi.object({
   limit,

@@ -28,7 +28,7 @@ const createSchema = Joi.object({
   quantity: quantity.required(),
   unitCost: unitCost.required(),
   batches: batches.required(),
-});
+}).options({ abortEarly: false });
 
 const updateSchema = Joi.object({
   productId: productId.required(),
@@ -38,7 +38,7 @@ const updateSchema = Joi.object({
   quantity: quantity.required(),
   unitCost: unitCost.required(),
   stock: stock.required(),
-});
+}).options({ abortEarly: false });
 
 const querySchema = Joi.object({
   limit,

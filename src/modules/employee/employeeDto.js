@@ -24,7 +24,7 @@ const createEmployeeSchema = Joi.object({
   email: email.required(),
   password: password.required(),
   typeOfEmployeeId: typeOfEmployeeId.required(),
-});
+}).options({ abortEarly: false });
 
 const updateEmployeeSchema = Joi.object({
   name: name,
@@ -33,19 +33,19 @@ const updateEmployeeSchema = Joi.object({
   email: email,
   password: password,
   typeOfEmployeeId: typeOfEmployeeId,
-});
+}).options({ abortEarly: false });
 
 const updateProfile = Joi.object({
   name: name.required(),
   lastName: lastName.required(),
   cellPhone: cellPhone,
   typeOfEmployeeId: typeOfEmployeeId.required(),
-});
+}).options({ abortEarly: false });
 
 const updateLogin = Joi.object({
   email: email.required(),
   password: password.required(),
-});
+}).options({ abortEarly: false });
 
 const updatePasswordSchema = Joi.object({
   password: password.required(),

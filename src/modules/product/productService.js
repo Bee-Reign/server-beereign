@@ -47,7 +47,7 @@ class ProductService {
             },
           ],
         },
-        limit: 25,
+        limit: 20,
       });
       return products;
     }

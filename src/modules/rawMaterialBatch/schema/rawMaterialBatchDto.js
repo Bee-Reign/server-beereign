@@ -33,7 +33,7 @@ const createSchema = Joi.object({
   measurement: measurement.required(),
   quantity: quantity.required(),
   unitCost: unitCost.required(),
-});
+}).options({ abortEarly: false });
 
 const updateSchema = Joi.object({
   rawMaterialId: rawMaterialId.required(),
@@ -44,7 +44,7 @@ const updateSchema = Joi.object({
   quantity: quantity.required(),
   stock: stock.required(),
   unitCost: unitCost.required(),
-});
+}).options({ abortEarly: false });
 
 const querySchema = Joi.object({
   limit,

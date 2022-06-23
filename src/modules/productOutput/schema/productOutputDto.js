@@ -22,11 +22,11 @@ const createSchema = Joi.object({
   amount: amount.required(),
   typeOfSale: typeOfSale.required(),
   batches: batches.required(),
-});
+}).options({ abortEarly: false });
 
 const updateOutputIsPaid = Joi.object({
   isPaid: isPaid.required(),
-});
+}).options({ abortEarly: false });
 
 const querySchema = Joi.object({
   limit,

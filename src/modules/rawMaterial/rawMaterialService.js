@@ -42,7 +42,7 @@ class RawMaterialService {
             },
           ],
         },
-        limit: 25,
+        limit: 20,
       });
       return rawMaterials;
     }
