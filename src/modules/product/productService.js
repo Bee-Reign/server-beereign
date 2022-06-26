@@ -8,12 +8,19 @@ const { ProductBatchService } = require('../productBatch');
 const productBatchService = new ProductBatchService();
 class ProductService {
   COUNT_QUERY =
-    'SELECT count(*) AS count FROM products products WHERE (products.barcode LIKE :filter OR products.name LIKE :filter) AND products.deleted = false;';
+    'SELECT count(*) AS count FROM products AS product WHERE (product.barcode LIKE :filter OR product.name LIKE :filter)AND product.deleted = false;';
   SELECT_QUERY =
-    'SELECT product.id, product.barcode, product.name, product.created_at as "createdAt", productStockById(product.id) AS stock,\
-    productAverageCost(product.id) as "averageCost", productCostValue(product.id) as amount\
-    FROM products product WHERE (product.barcode LIKE :filter OR product.name LIKE :filter) AND product.deleted = false\
+    'SELECT product.id, product.barcode, product.name, product.created_at "createdAt", \
+    SUM(CASE WHEN productBatch.deleted = false THEN productBatch.stock ELSE 0 END) stock, \
+    ROUND(AVG(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 THEN productBatch.stock END), 2) "averageCost", \
+    ROUND(SUM(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 THEN productBatch.cost_value ELSE 0 END), 2) amount \
+    FROM products product LEFT JOIN product_batches productBatch on product.id = productBatch.product_id \
+    WHERE (product.barcode LIKE :filter OR product.name LIKE :filter) AND product.deleted = false \
+    GROUP BY product.id, product.barcode, product.name, product.created_at \
     ORDER BY stock ASC limit :limit offset :offset;';
+  TOTAL_AMOUNT_QUERY =
+    'SELECT round(sum(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 AND p.deleted = false THEN productBatch.cost_value ELSE 0 END), 2) "totalAmount" \
+  FROM product_batches productBatch INNER JOIN products p on p.id = productBatch.product_id;';
   constructor() {}
 
   async productBarcodeExist(barcode = '') {
@@ -64,6 +71,15 @@ class ProductService {
       type: QueryTypes.SELECT,
     });
     const data = {};
+    if (filter === '') {
+      const totalAmount = await Product.sequelize.query(
+        this.TOTAL_AMOUNT_QUERY,
+        {
+          type: QueryTypes.SELECT,
+        }
+      );
+      data.totalAmount = totalAmount[0].totalAmount;
+    }
     data.count = count[0].count;
     data.rows = products;
     return data;
@@ -137,6 +153,12 @@ class ProductService {
 
   async disable(id) {
     const product = await this.findById(id);
+    const batches = await productBatchService.checkIfBatchesExistByProductId(
+      product.id
+    );
+    if (batches === true) {
+      throw boom.conflict('there are lots available with this product');
+    }
     await product.update({
       deleted: true,
     });

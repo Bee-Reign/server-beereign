@@ -142,12 +142,17 @@ VALUES ('bocas del toro', 1),
 ('panamá oeste', 1);
 
 --
+-- Structure of the `measurements` ENUM
+CREATE TYPE measurement AS ENUM ('GALONES', 'GRAMOS', 'KILOGRAMOS', 'LIBRAS', 'LITROS', 'ONZAS', 'UNIDADES');
+
+--
 -- Structure of the `raw_materials` table
 CREATE TABLE IF NOT EXISTS raw_materials
 (
     id              serial              NOT NULL,
     code            varchar(12),
-    name            varchar(50)        NOT NULL,
+    name            varchar(50)         NOT NULL,
+    measurement     measurement         NOT NULL,
     created_at      timestamp           NOT NULL,
     deleted         bool default false  NOT NULL,
     PRIMARY KEY(id),
@@ -177,53 +182,7 @@ CREATE TABLE IF NOT EXISTS warehouses
 );
 
 --
--- Structure of the `measurements` ENUM
-CREATE TYPE measurement AS ENUM ('GALONES', 'GRAMOS', 'KILOGRAMOS', 'LIBRAS', 'LITROS', 'ONZAS', 'UNIDADES');
-
---
 -- Structure of the `raw_material_batches` table
--- Functions
-CREATE OR REPLACE FUNCTION rawMaterialStockById (id integer)
-RETURNS decimal(12,2) AS $stock$
-declare
-	stock decimal(12,2);
-BEGIN
-   SELECT sum(rawMaterialBatch.stock) into stock FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
-   RETURN stock;
-END;
-$stock$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION rawMaterialAverageCost (id integer)
-RETURNS decimal(12,2) AS $averageCost$
-declare
-	averageCost decimal(12,2);
-BEGIN
-   SELECT ROUND(AVG(rawMaterialBatch.unit_cost), 2) into averageCost FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
-   RETURN averageCost;
-END;
-$averageCost$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION rawMaterialCostValue (id integer)
-RETURNS decimal(15,2) AS $costValue$
-declare
-	costValue decimal(12,2);
-BEGIN
-   SELECT ROUND(sum(rawMaterialBatch.cost_value), 2) into costValue FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0;
-   RETURN costValue;
-END;
-$costValue$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION rawMaterialMeasurement (id integer)
-RETURNS measurement AS $measurement$
-declare
-	measurement measurement;
-BEGIN
-   SELECT rawMaterialBatch.measurement into measurement FROM raw_material_batches rawMaterialBatch WHERE rawMaterialBatch.raw_material_id = $1 AND rawMaterialBatch.stock > 0 ORDER BY rawMaterialBatch.id DESC LIMIT 1;
-   RETURN measurement;
-END;
-$measurement$ LANGUAGE plpgsql;
-
--- Table
 CREATE TABLE IF NOT EXISTS raw_material_batches
 (
     id                  bigserial            NOT NULL,
@@ -231,7 +190,6 @@ CREATE TABLE IF NOT EXISTS raw_material_batches
     warehouse_id        integer              NOT NULL,
     entry_date          date                 NOT NULL,
     expiration_date     date,
-    measurement         measurement          NOT NULL,
     quantity            decimal(12,2)        NOT NULL,
     unit_cost           decimal(12,2)        NOT NULL,
     cost_value          decimal(15, 2)       GENERATED ALWAYS AS (unit_cost * stock) STORED,
@@ -272,37 +230,6 @@ CREATE TABLE IF NOT EXISTS products
 
 --
 -- Structure of the `product_batches` table
--- Functions
-CREATE OR REPLACE FUNCTION productStockById (id integer)
-RETURNS integer AS $stock$
-declare
-	stock integer;
-BEGIN
-   SELECT sum(productBatches.stock) into stock FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
-   RETURN stock;
-END;
-$stock$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION productAverageCost (id integer)
-RETURNS decimal(12,2) AS $averageCost$
-declare
-	averageCost decimal(12,2);
-BEGIN
-   SELECT ROUND(AVG(productBatches.unit_cost), 2) into averageCost FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
-   RETURN averageCost;
-END;
-$averageCost$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION productCostValue (id integer)
-RETURNS decimal(15,2) AS $costValue$
-declare
-	costValue decimal(12,2);
-BEGIN
-   SELECT ROUND(sum(productBatches.cost_value), 2) into costValue FROM product_batches productBatches WHERE productBatches.product_id = $1 AND productBatches.stock > 0;
-   RETURN costValue;
-END;
-$costValue$ LANGUAGE plpgsql;
--- Table
 CREATE TABLE IF NOT EXISTS product_batches
 (
     id                  bigserial             NOT NULL,

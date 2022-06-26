@@ -1,5 +1,5 @@
-const rawMaterialRouter = require('./rawMaterialRouter');
-const RawMaterialService = require('./rawMaterialService');
+const rawMaterialRouter = require('./controller/rawMaterialRouter');
+const RawMaterialService = require('./service/rawMaterialService');
 
 module.exports = {
   rawMaterialRouter,

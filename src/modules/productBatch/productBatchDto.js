@@ -8,7 +8,7 @@ const expirationDate = Joi.date().allow(null);
 const quantity = Joi.number().integer().positive();
 const stock = Joi.number().integer().min(0);
 const unitCost = Joi.number().positive();
-const batches = Joi.array();
+const batches = Joi.array().min(1);
 
 const limit = Joi.number().integer().min(2);
 const offset = Joi.number().integer().min(0);
@@ -45,8 +45,9 @@ const querySchema = Joi.object({
   offset,
   order,
   type,
+  productId: productId.allow('null'),
   isOutput,
-});
+}).options({ abortEarly: false });
 
 module.exports = {
   getSchema,

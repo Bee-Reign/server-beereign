@@ -1,16 +1,10 @@
 const Joi = require('joi');
 
-const {
-  config: { locale },
-} = require('../../../app/config');
-const Measurement = require('../model/enum/measurement');
-
 const id = Joi.number().unsafe().min(1).max(9223372036854775807);
 const rawMaterialId = Joi.number().integer().positive().max(2147483647);
 const warehouseId = Joi.number().integer().positive().max(32767);
 const entryDate = Joi.date();
 const expirationDate = Joi.date().allow(null);
-const measurement = Joi.string().valid(...Measurement[locale]);
 const quantity = Joi.number().positive();
 const stock = Joi.number().min(0);
 const unitCost = Joi.number().positive();
@@ -18,7 +12,7 @@ const unitCost = Joi.number().positive();
 const limit = Joi.number().integer().min(2);
 const offset = Joi.number().integer().min(0);
 const order = Joi.string().alphanum().valid('DESC', 'ASC');
-const type = Joi.string().alphanum().valid('inStock', 'empty', 'all');
+const type = Joi.string().alphanum().valid('inStock', 'empty');
 const isPacking = Joi.boolean();
 
 const getSchema = Joi.object({
@@ -30,7 +24,6 @@ const createSchema = Joi.object({
   warehouseId: warehouseId.required(),
   entryDate: entryDate.required(),
   expirationDate,
-  measurement: measurement.required(),
   quantity: quantity.required(),
   unitCost: unitCost.required(),
 }).options({ abortEarly: false });
@@ -40,7 +33,6 @@ const updateSchema = Joi.object({
   warehouseId: warehouseId.required(),
   entryDate: entryDate.required(),
   expirationDate,
-  measurement: measurement.required(),
   quantity: quantity.required(),
   stock: stock.required(),
   unitCost: unitCost.required(),
@@ -51,8 +43,9 @@ const querySchema = Joi.object({
   offset,
   order,
   type,
+  rawMaterialId: rawMaterialId.allow('null'),
   isPacking,
-});
+}).options({ abortEarly: false });
 
 module.exports = {
   getSchema,

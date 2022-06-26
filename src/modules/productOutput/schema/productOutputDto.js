@@ -9,7 +9,7 @@ const id = Joi.number().unsafe().min(1).max(9223372036854775807);
 const amount = Joi.number().unsafe().positive();
 const typeOfSale = Joi.string().valid(...TypeOfSale[locale]);
 const isPaid = Joi.boolean();
-const batches = Joi.array();
+const batches = Joi.array().min(1);
 
 const limit = Joi.number().integer().min(2);
 const offset = Joi.number().integer().min(0);

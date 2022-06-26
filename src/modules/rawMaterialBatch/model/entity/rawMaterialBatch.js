@@ -3,10 +3,7 @@ const moment = require('moment');
 
 const sequelize = require('../../../../libs/sequelize');
 const { models } = require('../../../../app/config');
-const {
-  config: { locale },
-} = require('../../../../app/config');
-const measurement = require('../enum/measurement');
+
 const RAW_MATERIAL_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
@@ -48,10 +45,6 @@ const RAW_MATERIAL_PROPERTIES = {
         ? moment(this.dataValues.expirationDate).format('YYYY-MM-DD')
         : 'does not expire';
     },
-  },
-  measurement: {
-    type: DataTypes.ENUM(measurement[locale]),
-    allowNull: false,
   },
   quantity: {
     type: DataTypes.DECIMAL(12, 2),

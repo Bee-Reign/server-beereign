@@ -18,12 +18,13 @@ router.get(
   validatorHandler(querySchema, 'query'),
   async (req, res, next) => {
     try {
-      const { limit, offset, order, type } = req.query;
+      const { limit, offset, order, type, rawMaterialId } = req.query;
       const rawMaterialBatches = await rawMaterialBatchService.findAll(
         limit,
         offset,
         order,
-        type
+        type,
+        rawMaterialId === 'null' ? null : rawMaterialId
       );
       res.status(200).json(rawMaterialBatches);
     } catch (error) {

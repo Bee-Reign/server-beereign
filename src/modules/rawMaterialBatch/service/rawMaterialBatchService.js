@@ -1,7 +1,7 @@
 const boom = require('@hapi/boom');
 const Op = require('sequelize/lib/operators');
 
-const { RawMaterial } = require('../../rawMaterial/rawMaterial');
+const { RawMaterial } = require('../../rawMaterial/model/entity/rawMaterial');
 const { Warehouse } = require('../../warehouse/warehouse');
 
 const { RawMaterialBatch } = require('../model/entity/rawMaterialBatch');
@@ -10,15 +10,53 @@ const { Employee } = require('../../employee/employee');
 class RawMaterialBatchService {
   constructor() {}
 
-  async findAll(limit = 15, offset = 0, order = 'ASC', type = 'inStock') {
+  async findAll(
+    limit = 15,
+    offset = 0,
+    order = 'ASC',
+    type = 'inStock',
+    rawMaterialId = null
+  ) {
     switch (type) {
       case 'inStock':
+        if (rawMaterialId === null) {
+          const inStock = await RawMaterialBatch.findAndCountAll({
+            attributes: {
+              exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
+            },
+            order: [['entryDate', order]],
+            where: {
+              deleted: false,
+              stock: {
+                [Op.gt]: 0,
+              },
+            },
+            include: [
+              {
+                model: Employee,
+                attributes: ['id', 'name', 'lastName'],
+              },
+              {
+                model: RawMaterial,
+                attributes: ['id', 'name', 'measurement'],
+              },
+              {
+                model: Warehouse,
+                attributes: ['id', 'name'],
+              },
+            ],
+            limit,
+            offset,
+          });
+          return inStock;
+        }
         const inStock = await RawMaterialBatch.findAndCountAll({
           attributes: {
             exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
           },
           order: [['entryDate', order]],
           where: {
+            rawMaterialId,
             deleted: false,
             stock: {
               [Op.gt]: 0,
@@ -31,7 +69,7 @@ class RawMaterialBatchService {
             },
             {
               model: RawMaterial,
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'measurement'],
             },
             {
               model: Warehouse,
@@ -43,12 +81,44 @@ class RawMaterialBatchService {
         });
         return inStock;
       case 'empty':
+        if (rawMaterialId === null) {
+          const emptyStock = await RawMaterialBatch.findAndCountAll({
+            attributes: {
+              exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
+            },
+            order: [['entryDate', order]],
+            where: {
+              deleted: false,
+              stock: {
+                [Op.lte]: 0,
+              },
+            },
+            include: [
+              {
+                model: Employee,
+                attributes: ['id', 'name', 'lastName'],
+              },
+              {
+                model: RawMaterial,
+                attributes: ['id', 'name', 'measurement'],
+              },
+              {
+                model: Warehouse,
+                attributes: ['id', 'name'],
+              },
+            ],
+            limit,
+            offset,
+          });
+          return emptyStock;
+        }
         const emptyStock = await RawMaterialBatch.findAndCountAll({
           attributes: {
             exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
           },
           order: [['entryDate', order]],
           where: {
+            rawMaterialId,
             deleted: false,
             stock: {
               [Op.lte]: 0,
@@ -61,7 +131,7 @@ class RawMaterialBatchService {
             },
             {
               model: RawMaterial,
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'measurement'],
             },
             {
               model: Warehouse,
@@ -72,42 +142,29 @@ class RawMaterialBatchService {
           offset,
         });
         return emptyStock;
-      case 'all':
-        const allStock = await RawMaterialBatch.findAndCountAll({
-          attributes: {
-            exclude: ['rawMaterialId', 'warehouseId', 'employeeId'],
-          },
-          order: [['entryDate', order]],
-          where: {
-            deleted: false,
-          },
-          include: [
-            {
-              model: Employee,
-              attributes: ['id', 'name', 'lastName'],
-            },
-            {
-              model: RawMaterial,
-              attributes: ['id', 'name'],
-            },
-            {
-              model: Warehouse,
-              attributes: ['id', 'name'],
-            },
-          ],
-          limit,
-          offset,
-        });
-        return allStock;
       default:
         throw boom.badRequest();
     }
   }
 
+  async checkIfBatchesExistByRawMaterialId(rawMaterialId) {
+    const batches = await RawMaterialBatch.findAll({
+      where: {
+        rawMaterialId,
+        deleted: false,
+        stock: {
+          [Op.gt]: 0,
+        },
+      },
+    });
+    if (batches.length === 0) return false;
+    return true;
+  }
+
   async findById(id, isPacking = true) {
     if (isPacking === true) {
       const rawMaterialBatch = await RawMaterialBatch.findOne({
-        attributes: ['id', 'measurement', 'unitCost', 'stock'],
+        attributes: ['id', 'unitCost', 'stock'],
         where: {
           id,
           deleted: false,
@@ -118,7 +175,7 @@ class RawMaterialBatchService {
         include: [
           {
             model: RawMaterial,
-            attributes: ['id', 'name'],
+            attributes: ['id', 'name', 'measurement'],
           },
         ],
       });
@@ -144,7 +201,7 @@ class RawMaterialBatchService {
       include: [
         {
           model: RawMaterial,
-          attributes: ['id', 'name'],
+          attributes: ['id', 'name', 'measurement'],
         },
         {
           model: Warehouse,

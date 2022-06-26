@@ -12,13 +12,49 @@ const rawMaterialBatchService = new RawMaterialBatchService();
 class ProductBatchService {
   constructor() {}
 
-  async findAll(limit = 15, offset = 0, order = 'ASC', type = 'inStock') {
+  async findAll(
+    limit = 15,
+    offset = 0,
+    order = 'ASC',
+    type = 'inStock',
+    productId = null
+  ) {
     switch (type) {
       case 'inStock':
+        if (productId === null) {
+          const inStock = await ProductBatch.findAndCountAll({
+            attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
+            order: [['entryDate', order]],
+            where: {
+              deleted: false,
+              stock: {
+                [Op.gt]: 0,
+              },
+            },
+            include: [
+              {
+                model: Employee,
+                attributes: ['id', 'name', 'lastName'],
+              },
+              {
+                model: Product,
+                attributes: ['id', 'name'],
+              },
+              {
+                model: Warehouse,
+                attributes: ['id', 'name'],
+              },
+            ],
+            limit,
+            offset,
+          });
+          return inStock;
+        }
         const inStock = await ProductBatch.findAndCountAll({
           attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
           order: [['entryDate', order]],
           where: {
+            productId,
             deleted: false,
             stock: {
               [Op.gt]: 0,
@@ -43,10 +79,40 @@ class ProductBatchService {
         });
         return inStock;
       case 'empty':
+        if (productId === null) {
+          const emptyStock = await ProductBatch.findAndCountAll({
+            attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
+            order: [['entryDate', order]],
+            where: {
+              deleted: false,
+              stock: {
+                [Op.lte]: 0,
+              },
+            },
+            include: [
+              {
+                model: Employee,
+                attributes: ['id', 'name', 'lastName'],
+              },
+              {
+                model: Product,
+                attributes: ['id', 'name'],
+              },
+              {
+                model: Warehouse,
+                attributes: ['id', 'name'],
+              },
+            ],
+            limit,
+            offset,
+          });
+          return emptyStock;
+        }
         const emptyStock = await ProductBatch.findAndCountAll({
           attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
           order: [['entryDate', order]],
           where: {
+            productId,
             deleted: false,
             stock: {
               [Op.lte]: 0,
@@ -70,31 +136,6 @@ class ProductBatchService {
           offset,
         });
         return emptyStock;
-      case 'all':
-        const allStock = await ProductBatch.findAndCountAll({
-          attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
-          order: [['entryDate', order]],
-          where: {
-            deleted: false,
-          },
-          include: [
-            {
-              model: Employee,
-              attributes: ['id', 'name', 'lastName'],
-            },
-            {
-              model: Product,
-              attributes: ['id', 'name'],
-            },
-            {
-              model: Warehouse,
-              attributes: ['id', 'name'],
-            },
-          ],
-          limit,
-          offset,
-        });
-        return allStock;
       default:
         throw boom.badRequest();
     }
@@ -122,6 +163,20 @@ class ProductBatchService {
       ],
     });
     return productBatches;
+  }
+
+  async checkIfBatchesExistByProductId(productId) {
+    const batches = await ProductBatch.findAll({
+      where: {
+        productId,
+        deleted: false,
+        stock: {
+          [Op.gt]: 0,
+        },
+      },
+    });
+    if (batches.length === 0) return false;
+    return true;
   }
 
   async findById(id, isOutput = true) {

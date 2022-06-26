@@ -1,9 +1,15 @@
 const { DataTypes, Model } = require('sequelize');
 const moment = require('moment');
 
-const sequelize = require('../../libs/sequelize');
-const { models } = require('../../app/config');
-const { RawMaterialBatch } = require('../rawMaterialBatch/model/entity/rawMaterialBatch');
+const sequelize = require('../../../../libs/sequelize');
+const { models } = require('../../../../app/config');
+const {
+  RawMaterialBatch,
+} = require('../../../rawMaterialBatch/model/entity/rawMaterialBatch');
+const {
+  config: { locale },
+} = require('../../../../app/config');
+const measurement = require('../enum/measurement');
 
 const RAW_MATERIAL_PROPERTIES = {
   id: {
@@ -18,6 +24,10 @@ const RAW_MATERIAL_PROPERTIES = {
   },
   name: {
     type: DataTypes.STRING(50),
+    allowNull: false,
+  },
+  measurement: {
+    type: DataTypes.ENUM(measurement[locale]),
     allowNull: false,
   },
   createdAt: {

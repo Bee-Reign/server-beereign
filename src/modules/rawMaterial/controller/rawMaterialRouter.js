@@ -1,13 +1,13 @@
 const { Router } = require('express');
 
-const RawMaterialService = require('./rawMaterialService');
-const validatorHandler = require('../../app/middlewares/validatorHandler');
+const RawMaterialService = require('../service/rawMaterialService');
+const validatorHandler = require('../../../app/middlewares/validatorHandler');
 const {
   getRawMaterialSchema,
   createRawMaterialSchema,
   updateRawMaterialSchema,
   querySchema,
-} = require('./rawMaterialDto');
+} = require('../schema/rawMaterialDto');
 
 const router = Router();
 const rawMaterialService = new RawMaterialService();

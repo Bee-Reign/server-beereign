@@ -2,13 +2,26 @@ const boom = require('@hapi/boom');
 const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
 
-const { RawMaterial } = require('./rawMaterial');
+const { RawMaterial } = require('../model/entity/rawMaterial');
+const { RawMaterialBatchService } = require('../../rawMaterialBatch');
 
+const rawMaterialBatchService = new RawMaterialBatchService();
 class RawMaterialService {
   COUNT_QUERY =
     'SELECT count(*) AS count FROM raw_materials AS rawMaterial WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false;';
   SELECT_QUERY =
-    'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at as "createdAt", rawMaterialStockById(rawMaterial.id) AS stock, rawMaterialAverageCost(rawMaterial.id) as "averageCost", rawMaterialCostValue(rawMaterial.id) as amount, rawMaterialMeasurement(rawMaterial.id) as measurement  FROM raw_materials rawMaterial WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false ORDER BY stock ASC limit :limit offset :offset;';
+    'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at AS "createdAt", \
+    SUM(CASE WHEN rawMaterialBatch.deleted = false THEN rawMaterialBatch.stock ELSE 0 END) stock, rawMaterial.measurement, \
+    ROUND(AVG(CASE WHEN rawMaterialBatch.deleted = false AND rawMaterialBatch.stock > 0 THEN rawMaterialBatch.unit_cost END), 2) "averageCost", \
+    ROUND(SUM(CASE WHEN rawMaterialBatch.deleted = false AND rawMaterialBatch.stock > 0 THEN rawMaterialBatch.cost_value ELSE 0 END), 2) amount \
+    FROM raw_materials rawMaterial LEFT JOIN raw_material_batches rawMaterialBatch \
+    ON rawMaterial.id = rawMaterialBatch.raw_material_id \
+    WHERE (rawMaterial.code LIKE :filter OR rawMaterial.name LIKE :filter) AND rawMaterial.deleted = false \
+    GROUP BY rawMaterial.id, rawMaterial.code, rawMaterial.name, "createdAt", rawMaterial.measurement \
+    ORDER BY stock ASC limit :limit offset :offset;';
+  TOTAL_AMOUNT_QUERY =
+    'SELECT round(sum(CASE WHEN rawMaterialBatch.deleted = false AND rawMaterialBatch.stock > 0 AND rm.deleted = false THEN rawMaterialBatch.cost_value ELSE 0 END), 2) "totalAmount" FROM raw_material_batches rawMaterialBatch \
+    INNER JOIN raw_materials rm on rm.id = rawMaterialBatch.raw_material_id;';
   constructor() {}
 
   async rawMaterialCodeExist(code = '') {
@@ -59,6 +72,15 @@ class RawMaterialService {
       type: QueryTypes.SELECT,
     });
     const data = {};
+    if (filter === '') {
+      const totalAmount = await RawMaterial.sequelize.query(
+        this.TOTAL_AMOUNT_QUERY,
+        {
+          type: QueryTypes.SELECT,
+        }
+      );
+      data.totalAmount = totalAmount[0].totalAmount;
+    }
     data.count = count[0].count;
     data.rows = rawMaterials;
     return data;
@@ -67,7 +89,7 @@ class RawMaterialService {
   async findById(id, type = 'id') {
     if (type === 'code') {
       const rawMaterial = await RawMaterial.findOne({
-        attributes: ['id', 'code', 'name', 'createdAt'],
+        attributes: { exclude: ['deleted'] },
         where: {
           code: id,
           deleted: false,
@@ -79,7 +101,7 @@ class RawMaterialService {
       return rawMaterial;
     }
     const rawMaterial = await RawMaterial.findOne({
-      attributes: ['id', 'code', 'name', 'createdAt'],
+      attributes: { exclude: ['deleted'] },
       where: {
         id: id,
         deleted: false,
@@ -110,6 +132,13 @@ class RawMaterialService {
 
   async disable(id) {
     const rawMaterial = await this.findById(id);
+    const batches =
+      await rawMaterialBatchService.checkIfBatchesExistByRawMaterialId(
+        rawMaterial.id
+      );
+    if (batches === true) {
+      throw boom.conflict('there are lots available with this raw material');
+    }
     await rawMaterial.update({
       deleted: true,
     });
