@@ -12,7 +12,6 @@ class RawMaterialService {
   SELECT_QUERY =
     'SELECT rawMaterial.id, rawMaterial.code, rawMaterial.name, rawMaterial.created_at AS "createdAt", \
     SUM(CASE WHEN rawMaterialBatch.deleted = false THEN rawMaterialBatch.stock ELSE 0 END) stock, rawMaterial.measurement, \
-    ROUND(AVG(CASE WHEN rawMaterialBatch.deleted = false AND rawMaterialBatch.stock > 0 THEN rawMaterialBatch.unit_cost END), 2) "averageCost", \
     ROUND(SUM(CASE WHEN rawMaterialBatch.deleted = false AND rawMaterialBatch.stock > 0 THEN rawMaterialBatch.cost_value ELSE 0 END), 2) amount \
     FROM raw_materials rawMaterial LEFT JOIN raw_material_batches rawMaterialBatch \
     ON rawMaterial.id = rawMaterialBatch.raw_material_id \

@@ -12,7 +12,6 @@ class ProductService {
   SELECT_QUERY =
     'SELECT product.id, product.barcode, product.name, product.created_at "createdAt", \
     SUM(CASE WHEN productBatch.deleted = false THEN productBatch.stock ELSE 0 END) stock, \
-    ROUND(AVG(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 THEN productBatch.stock END), 2) "averageCost", \
     ROUND(SUM(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 THEN productBatch.cost_value ELSE 0 END), 2) amount \
     FROM products product LEFT JOIN product_batches productBatch on product.id = productBatch.product_id \
     WHERE (product.barcode LIKE :filter OR product.name LIKE :filter) AND product.deleted = false \
