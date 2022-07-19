@@ -11,46 +11,6 @@ const PRODUCT_BATCH_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
-    autoIncrement: true,
-    allowNull: false,
-  },
-  productId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'product_id',
-    references: {
-      model: models.product.tableName,
-      key: 'id',
-    },
-  },
-  warehouseId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'warehouse_id',
-    references: {
-      model: models.warehouse.tableName,
-      key: 'id',
-    },
-  },
-  entryDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-    field: 'entry_date',
-    get() {
-      return moment(this.dataValues.entryDate).format('YYYY-MM-DD');
-    },
-  },
-  expirationDate: {
-    type: DataTypes.DATEONLY,
-    field: 'expiration_date',
-    get() {
-      return this.dataValues.expirationDate !== null
-        ? moment(this.dataValues.expirationDate).format('YYYY-MM-DD')
-        : 'does not expire';
-    },
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
     allowNull: false,
   },
   unitCost: {
@@ -65,20 +25,6 @@ const PRODUCT_BATCH_PROPERTIES = {
   stock: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  employeeId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'employee_id',
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    field: 'created_at',
-    get() {
-      return moment(this.dataValues.createdAt).format('DD MM YYYY HH:mm');
-    },
-    defaultValue: sequelize.literal('NOW()'),
   },
   deleted: {
     type: DataTypes.BOOLEAN,

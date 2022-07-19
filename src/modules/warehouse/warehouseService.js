@@ -43,6 +43,16 @@ class WarehouseService {
           [Op.like]: '%' + filter + '%',
         },
       },
+      include: [
+        {
+          model: Country,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Province,
+          attributes: ['id', 'name'],
+        },
+      ],
       limit,
       offset,
     });

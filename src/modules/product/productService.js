@@ -10,16 +10,19 @@ class ProductService {
   COUNT_QUERY =
     'SELECT count(*) AS count FROM products AS product WHERE (product.barcode LIKE :filter OR product.name LIKE :filter)AND product.deleted = false;';
   SELECT_QUERY =
-    'SELECT product.id, product.barcode, product.name, product.created_at "createdAt", \
+    'SELECT product.id, product.barcode, product.name, product.description, product.created_at "createdAt", \
     SUM(CASE WHEN productBatch.deleted = false THEN productBatch.stock ELSE 0 END) stock, \
     ROUND(SUM(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 THEN productBatch.cost_value ELSE 0 END), 2) amount \
-    FROM products product LEFT JOIN product_batches productBatch on product.id = productBatch.product_id \
+    FROM product_batches productBatch LEFT JOIN packings packing on packing.id = productBatch.id \
+    RIGHT JOIN products product on packing.product_id = product.id \
     WHERE (product.barcode LIKE :filter OR product.name LIKE :filter) AND product.deleted = false \
-    GROUP BY product.id, product.barcode, product.name, product.created_at \
+    GROUP BY product.id, product.barcode, product.name, product.description, product.created_at \
     ORDER BY stock ASC limit :limit offset :offset;';
   TOTAL_AMOUNT_QUERY =
-    'SELECT round(sum(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 AND p.deleted = false THEN productBatch.cost_value ELSE 0 END), 2) "totalAmount" \
-  FROM product_batches productBatch INNER JOIN products p on p.id = productBatch.product_id;';
+    'SELECT round(sum(CASE WHEN productBatch.deleted = false AND productBatch.stock > 0 AND p.deleted = false \
+      THEN productBatch.cost_value ELSE 0 END), 2) "totalAmount" FROM product_batches productBatch \
+      INNER JOIN packings packing on packing.id = productBatch.id \
+      INNER JOIN products p on p.id = packing.product_id;';
   constructor() {}
 
   async productBarcodeExist(barcode = '') {

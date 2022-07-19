@@ -1,15 +1,18 @@
 const boom = require('@hapi/boom');
 const Op = require('sequelize/lib/operators');
+const QueryTypes = require('sequelize/lib/query-types');
 
 const { Product } = require('../product/product');
 const { Warehouse } = require('../warehouse/warehouse');
 const { ProductBatch } = require('./productBatch');
 const { Employee } = require('../employee/employee');
-const { RawMaterialBatchService } = require('../rawMaterialBatch');
-
-const rawMaterialBatchService = new RawMaterialBatchService();
+const { Packing } = require('../packing/packing');
 
 class ProductBatchService {
+  SELECT_ALL_BATCHES_BY_PRODUCT_ID =
+    'SELECT productBatch.id from product_batches productBatch INNER JOIN packings packing on packing.id = productBatch.id \
+  INNER JOIN products product on packing.product_id = product.id \
+  WHERE product.id = :id;';
   constructor() {}
 
   async findAll(
@@ -23,8 +26,7 @@ class ProductBatchService {
       case 'inStock':
         if (productId === null) {
           const inStock = await ProductBatch.findAndCountAll({
-            attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
-            order: [['entryDate', order]],
+            attributes: { exclude: ['deleted'] },
             where: {
               deleted: false,
               stock: {
@@ -33,16 +35,25 @@ class ProductBatchService {
             },
             include: [
               {
-                model: Employee,
-                attributes: ['id', 'name', 'lastName'],
-              },
-              {
-                model: Product,
-                attributes: ['id', 'name'],
-              },
-              {
-                model: Warehouse,
-                attributes: ['id', 'name'],
+                model: Packing,
+                order: [['entryDate', order]],
+                attributes: {
+                  exclude: ['productId', 'warehouseId', 'employeeId'],
+                },
+                include: [
+                  {
+                    model: Employee,
+                    attributes: ['id', 'name', 'lastName'],
+                  },
+                  {
+                    model: Product,
+                    attributes: ['id', 'name'],
+                  },
+                  {
+                    model: Warehouse,
+                    attributes: ['id', 'name'],
+                  },
+                ],
               },
             ],
             limit,
@@ -51,10 +62,8 @@ class ProductBatchService {
           return inStock;
         }
         const inStock = await ProductBatch.findAndCountAll({
-          attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
-          order: [['entryDate', order]],
+          attributes: { exclude: ['deleted'] },
           where: {
-            productId,
             deleted: false,
             stock: {
               [Op.gt]: 0,
@@ -62,16 +71,28 @@ class ProductBatchService {
           },
           include: [
             {
-              model: Employee,
-              attributes: ['id', 'name', 'lastName'],
-            },
-            {
-              model: Product,
-              attributes: ['id', 'name'],
-            },
-            {
-              model: Warehouse,
-              attributes: ['id', 'name'],
+              model: Packing,
+              order: [['entryDate', order]],
+              attributes: {
+                exclude: ['productId', 'warehouseId', 'employeeId'],
+              },
+              where: {
+                productId,
+              },
+              include: [
+                {
+                  model: Employee,
+                  attributes: ['id', 'name', 'lastName'],
+                },
+                {
+                  model: Product,
+                  attributes: ['id', 'name'],
+                },
+                {
+                  model: Warehouse,
+                  attributes: ['id', 'name'],
+                },
+              ],
             },
           ],
           limit,
@@ -81,8 +102,7 @@ class ProductBatchService {
       case 'empty':
         if (productId === null) {
           const emptyStock = await ProductBatch.findAndCountAll({
-            attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
-            order: [['entryDate', order]],
+            attributes: { exclude: ['deleted'] },
             where: {
               deleted: false,
               stock: {
@@ -91,16 +111,25 @@ class ProductBatchService {
             },
             include: [
               {
-                model: Employee,
-                attributes: ['id', 'name', 'lastName'],
-              },
-              {
-                model: Product,
-                attributes: ['id', 'name'],
-              },
-              {
-                model: Warehouse,
-                attributes: ['id', 'name'],
+                model: Packing,
+                order: [['entryDate', order]],
+                attributes: {
+                  exclude: ['productId', 'warehouseId', 'employeeId'],
+                },
+                include: [
+                  {
+                    model: Employee,
+                    attributes: ['id', 'name', 'lastName'],
+                  },
+                  {
+                    model: Product,
+                    attributes: ['id', 'name'],
+                  },
+                  {
+                    model: Warehouse,
+                    attributes: ['id', 'name'],
+                  },
+                ],
               },
             ],
             limit,
@@ -109,10 +138,8 @@ class ProductBatchService {
           return emptyStock;
         }
         const emptyStock = await ProductBatch.findAndCountAll({
-          attributes: { exclude: ['productId', 'warehouseId', 'employeeId'] },
-          order: [['entryDate', order]],
+          attributes: { exclude: ['deleted'] },
           where: {
-            productId,
             deleted: false,
             stock: {
               [Op.lte]: 0,
@@ -120,16 +147,28 @@ class ProductBatchService {
           },
           include: [
             {
-              model: Employee,
-              attributes: ['id', 'name', 'lastName'],
-            },
-            {
-              model: Product,
-              attributes: ['id', 'name'],
-            },
-            {
-              model: Warehouse,
-              attributes: ['id', 'name'],
+              model: Packing,
+              order: [['entryDate', order]],
+              attributes: {
+                exclude: ['productId', 'warehouseId', 'employeeId'],
+              },
+              where: {
+                productId,
+              },
+              include: [
+                {
+                  model: Employee,
+                  attributes: ['id', 'name', 'lastName'],
+                },
+                {
+                  model: Product,
+                  attributes: ['id', 'name'],
+                },
+                {
+                  model: Warehouse,
+                  attributes: ['id', 'name'],
+                },
+              ],
             },
           ],
           limit,
@@ -145,7 +184,6 @@ class ProductBatchService {
     const productBatches = await ProductBatch.findAll({
       attributes: ['id', 'unitCost', 'stock'],
       where: {
-        productId: id,
         deleted: false,
         stock: {
           [Op.gt]: 0,
@@ -153,12 +191,24 @@ class ProductBatchService {
       },
       include: [
         {
-          model: Product,
-          attributes: ['id', 'name'],
-        },
-        {
-          model: Warehouse,
-          attributes: ['id', 'name'],
+          model: Packing,
+          order: [['entryDate', 'ASC']],
+          attributes: {
+            exclude: ['productId', 'warehouseId', 'employeeId'],
+          },
+          where: {
+            productId: id,
+          },
+          include: [
+            {
+              model: Product,
+              attributes: ['id', 'name'],
+            },
+            {
+              model: Warehouse,
+              attributes: ['id', 'name'],
+            },
+          ],
         },
       ],
     });
@@ -166,15 +216,13 @@ class ProductBatchService {
   }
 
   async checkIfBatchesExistByProductId(productId) {
-    const batches = await ProductBatch.findAll({
-      where: {
-        productId,
-        deleted: false,
-        stock: {
-          [Op.gt]: 0,
-        },
-      },
-    });
+    const batches = await ProductBatch.sequelize.query(
+      this.SELECT_ALL_BATCHES_BY_PRODUCT_ID,
+      {
+        replacements: { id: productId },
+        type: QueryTypes.SELECT,
+      }
+    );
     if (batches.length === 0) return false;
     return true;
   }
@@ -192,8 +240,16 @@ class ProductBatchService {
         },
         include: [
           {
-            model: Product,
-            attributes: ['id', 'name'],
+            model: Packing,
+            attributes: {
+              exclude: ['productId', 'warehouseId', 'employeeId'],
+            },
+            include: [
+              {
+                model: Product,
+                attributes: ['id', 'name'],
+              },
+            ],
           },
         ],
       });
@@ -203,29 +259,10 @@ class ProductBatchService {
       return productBatch;
     }
     const productBatch = await ProductBatch.findOne({
-      attributes: {
-        exclude: [
-          'productId',
-          'warehouseId',
-          'employeeId',
-          'createdAt',
-          'totalCost',
-        ],
-      },
       where: {
         id,
         deleted: false,
       },
-      include: [
-        {
-          model: Product,
-          attributes: ['id', 'name'],
-        },
-        {
-          model: Warehouse,
-          attributes: ['id', 'name'],
-        },
-      ],
     });
     if (!productBatch) {
       throw boom.notFound('product batch not found');
@@ -233,23 +270,14 @@ class ProductBatchService {
     return productBatch;
   }
 
-  async create(sub, data) {
-    data.employeeId = sub;
-    data.stock = data.quantity;
-    const t = await ProductBatch.sequelize.transaction();
-    try {
-      const productBatch = await ProductBatch.create(data, { transaction: t });
-      await rawMaterialBatchService.updateBatches(data.batches);
-      await t.commit();
-      return productBatch;
-    } catch (err) {
-      await t.rollback();
-      throw err;
-    }
+  async create(data, transaction) {
+    const productBatch = await ProductBatch.create(data, {
+      transaction: transaction,
+    });
+    return productBatch;
   }
 
-  async update(sub, id, data) {
-    data.employeeId = sub;
+  async update(id, data) {
     const productBatch = await this.findById(id, false);
     await productBatch.update(data);
     return productBatch;

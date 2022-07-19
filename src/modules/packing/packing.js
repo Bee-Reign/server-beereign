@@ -1,23 +1,24 @@
 const { DataTypes, Model } = require('sequelize');
 const moment = require('moment');
 
-const sequelize = require('../../../../libs/sequelize');
-const { models } = require('../../../../app/config');
-const { PackingDetail } = require('../../../packingDetail/packingDetail');
+const sequelize = require('../../libs/sequelize');
+const { models } = require('../../app/config');
+const { PackingDetail } = require('../packingDetail/packingDetail');
+const { ProductBatch } = require('../productBatch/productBatch');
 
-const RAW_MATERIAL_PROPERTIES = {
+const PACKING_PROPERTIES = {
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  rawMaterialId: {
+  productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'raw_material_id',
+    field: 'product_id',
     references: {
-      model: models.rawMaterial.tableName,
+      model: models.product.tableName,
       key: 'id',
     },
   },
@@ -48,26 +49,18 @@ const RAW_MATERIAL_PROPERTIES = {
     },
   },
   quantity: {
-    type: DataTypes.DECIMAL(12, 2),
-    allowNull: false,
-  },
-  unitCost: {
-    type: DataTypes.DECIMAL(12, 2),
-    allowNull: false,
-    field: 'unit_cost',
-  },
-  totalCost: {
-    type: DataTypes.DECIMAL(15, 2),
-    field: 'cost_value',
-  },
-  stock: {
-    type: DataTypes.DECIMAL(12, 2),
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   employeeId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     field: 'employee_id',
+  },
+  isDone: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    field: 'is_done',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -78,32 +71,36 @@ const RAW_MATERIAL_PROPERTIES = {
     },
     defaultValue: sequelize.literal('NOW()'),
   },
-  deleted: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
-  },
 };
 
-class RawMaterialBatch extends Model {}
+class Packing extends Model {}
 
-RawMaterialBatch.init(RAW_MATERIAL_PROPERTIES, {
+Packing.init(PACKING_PROPERTIES, {
   sequelize,
   timestamps: false,
-  modelName: models.rawMaterialBatch.modelName,
-  tableName: models.rawMaterialBatch.tableName,
+  modelName: models.packing.modelName,
+  tableName: models.packing.tableName,
 });
 
-RawMaterialBatch.hasMany(PackingDetail, {
-  foreignKey: 'rawMaterialBatchId',
+Packing.hasMany(PackingDetail, {
+  foreignKey: 'packingId',
   sourceKey: 'id',
 });
-PackingDetail.belongsTo(RawMaterialBatch, {
-  foreignKey: 'rawMaterialBatchId',
+PackingDetail.belongsTo(Packing, {
+  foreignKey: 'packingId',
+  sourceKey: 'id',
+});
+
+Packing.hasOne(ProductBatch, {
+  foreignKey: 'id',
+  sourceKey: 'id',
+});
+ProductBatch.belongsTo(Packing, {
+  foreignKey: 'id',
   sourceKey: 'id',
 });
 
 module.exports = {
-  RawMaterialBatch,
-  RAW_MATERIAL_PROPERTIES,
+  Packing,
+  PACKING_PROPERTIES,
 };

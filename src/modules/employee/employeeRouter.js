@@ -89,13 +89,27 @@ router.patch(
   }
 );
 
-router.delete(
-  '/:id',
+router.patch(
+  '/:id/disable',
   validatorHandler(getEmployeeSchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
       await employeeService.disableEmployee(id);
+      res.status(200).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch(
+  '/:id/enable',
+  validatorHandler(getEmployeeSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      await employeeService.enableEmployee(id);
       res.status(200).end();
     } catch (error) {
       next(error);

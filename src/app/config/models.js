@@ -35,6 +35,14 @@ const models = {
     modelName: 'product',
     tableName: 'products',
   },
+  packing: {
+    modelName: 'packing',
+    tableName: 'packings',
+  },
+  packingDetail: {
+    modelName: 'packingDetail',
+    tableName: 'packing_details',
+  },
   productBatch: {
     modelName: 'productBatch',
     tableName: 'product_batches',

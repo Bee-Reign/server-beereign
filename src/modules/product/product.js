@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const sequelize = require('../../libs/sequelize');
 const { models } = require('../../app/config');
-const { ProductBatch } = require('../productBatch/productBatch');
+const { Packing } = require('../packing/packing');
 
 const PRODUCT_PROPERTIES = {
   id: {
@@ -49,11 +49,11 @@ Product.init(PRODUCT_PROPERTIES, {
   tableName: models.product.tableName,
 });
 
-Product.hasMany(ProductBatch, {
+Product.hasMany(Packing, {
   foreignKey: 'productId',
   sourceKey: 'id',
 });
-ProductBatch.belongsTo(Product, {
+Packing.belongsTo(Product, {
   foreignKey: 'productId',
   sourceKey: 'id',
 });

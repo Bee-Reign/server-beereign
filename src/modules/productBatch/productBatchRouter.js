@@ -5,8 +5,6 @@ const validatorHandler = require('../../app/middlewares/validatorHandler');
 
 const {
   getSchema,
-  createSchema,
-  updateSchema,
   querySchema,
 } = require('./productBatchDto');
 
@@ -46,38 +44,6 @@ router.get(
         isOutput == 'true'
       );
       res.status(200).json(productBatch);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.post(
-  '/',
-  validatorHandler(createSchema, 'body'),
-  async (req, res, next) => {
-    try {
-      const { sub } = req.user;
-      const data = req.body;
-      const productBatch = await productBatchService.create(sub, data);
-      res.status(201).json(productBatch);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.patch(
-  '/:id',
-  validatorHandler(getSchema, 'params'),
-  validatorHandler(updateSchema, 'body'),
-  async (req, res, next) => {
-    try {
-      const { sub } = req.user;
-      const { id } = req.params;
-      const data = req.body;
-      const ProductBatch = await productBatchService.update(sub, id, data);
-      res.status(200).json(ProductBatch);
     } catch (error) {
       next(error);
     }

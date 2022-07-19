@@ -52,18 +52,8 @@ class EmployeeService {
       return employees;
     }
     const employees = await Employee.findAndCountAll({
-      attributes: [
-        'id',
-        'name',
-        'lastName',
-        'cellPhone',
-        'email',
-        'typeOfEmployeeId',
-        'createdAt',
-      ],
       order: [['id', 'ASC']],
       where: {
-        deleted: false,
         name: {
           [Op.like]: '%' + filter + '%',
         },
@@ -80,7 +70,7 @@ class EmployeeService {
     return employees;
   }
 
-  async findById(id) {
+  async findById(id, deleted = false) {
     const employee = await Employee.findOne({
       attributes: [
         'id',
@@ -93,7 +83,7 @@ class EmployeeService {
       ],
       where: {
         id: id,
-        deleted: false,
+        deleted: deleted,
       },
       include: [
         {
@@ -190,6 +180,13 @@ class EmployeeService {
     const employee = await this.findById(id);
     await employee.update({
       deleted: true,
+    });
+  }
+
+  async enableEmployee(id) {
+    const employee = await this.findById(id, true);
+    await employee.update({
+      deleted: false,
     });
   }
 }

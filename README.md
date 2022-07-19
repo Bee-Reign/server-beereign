@@ -12,5 +12,5 @@
 
 ## License
 
-Copyright © 2022 [@BeeReign](https://github.com/Bee-Reign) .<br />
+Copyright © 2022 [@BeeReign](https://github.com/BeeReign) .<br />
 This project is [GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) licensed.

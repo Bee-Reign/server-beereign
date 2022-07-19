@@ -15,6 +15,7 @@ const { rawMaterialBatchRouter } = require('../../modules/rawMaterialBatch');
 const { productRouter } = require('../../modules/product');
 const { productBatchRouter } = require('../../modules/productBatch');
 const { productOutputRouter } = require('../../modules/productOutput');
+const { packingRouter } = require('../../modules/packing');
 
 router.get(
   '/',
@@ -72,6 +73,11 @@ router.use(
   '/v1/products',
   passport.authenticate('jwt', { session: false }),
   productRouter
+);
+router.use(
+  '/v1/packing',
+  passport.authenticate('jwt', { session: false }),
+  packingRouter
 );
 router.use(
   '/v1/product-batches',

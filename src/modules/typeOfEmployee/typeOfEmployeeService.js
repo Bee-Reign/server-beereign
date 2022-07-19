@@ -37,7 +37,7 @@ class TypeOfEmployeeService {
       return typesOfEmployee;
     }
     const typesOfEmployee = await TypeOfEmployee.findAndCountAll({
-      attributes: ['id', 'name'],
+      attributes: ['id', 'name', 'description'],
       order: [['id', 'ASC']],
       where: {
         deleted: false,
@@ -87,6 +87,7 @@ class TypeOfEmployeeService {
   }
 
   async update(id, data) {
+    if (id == 1) throw boom.conflict('admin cannot be changed');
     const typeOfEmployee = await this.findById(id);
     if (typeOfEmployee.name != data.name) {
       await this.typeNameExist(data.name);

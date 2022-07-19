@@ -1,4 +1,23 @@
 --
+-- Structure of the `beereign_app_config` table
+CREATE TABLE IF NOT EXISTS beereign_app_config
+(
+    key             varchar(30)        NOT NULL,
+    value           varchar(300)       NOT NULL,
+    PRIMARY KEY(key)
+);
+
+--
+-- Data for the table `beereign_app_config`
+INSERT INTO beereign_app_config (key, value) VALUES
+('address', '0000 Random Park, Panamá'),
+('company', 'Your Company Name'),
+('email', 'contact@yourdomain.com'),
+('phone', '+0 000-0000'),
+('website', 'your-company.com'),
+('company_logo_url', '');
+
+--
 -- Structure of the `types_of_employee` table
 CREATE TABLE IF NOT EXISTS types_of_employee
 (
@@ -32,15 +51,16 @@ CREATE TABLE IF NOT EXISTS modules
 
 INSERT INTO modules (name, path) VALUES
 ('Bodegas', '/warehouse'),
+('Configuración', '/config'),
 ('Envasado', '/packing'),
 ('Empleados', '/employee'),
-('Entrada de Materia Prima', '/raw-material-input'),
-('Inventario de Materia Prima', '/raw-material'),
-('Inventario de Productos', '/product'),
-('Lotes de Materia Prima', '/raw-material-batch'),
-('Lotes de Productos', '/product-batch'),
-('Salida de Productos', '/product-output'),
-('Tipos de Empleado', '/type-of-employee');
+('Entrada de materia prima', '/raw-material-input'),
+('Inventario de materia prima', '/raw-material'),
+('Inventario de productos', '/product'),
+('Lotes de materia prima', '/raw-material-batch'),
+('Lotes de productos', '/product-batch'),
+('Salida de productos', '/product-output'),
+('Tipos de empleado', '/type-of-employee');
 
 --
 -- Structure of the `type_of_employee_modules` table
@@ -68,7 +88,8 @@ INSERT INTO type_of_employee_modules(type_of_employee_id, module_id) VALUES
 (1, 7),
 (1, 8),
 (1, 9),
-(1, 10);
+(1, 10),
+(1, 11);
 
 --
 -- Structure of the `employees` table
@@ -226,11 +247,9 @@ CREATE TABLE IF NOT EXISTS products
     CONSTRAINT products_barcode_key UNIQUE(barcode)
 );
 
-
-
 --
--- Structure of the `product_batches` table
-CREATE TABLE IF NOT EXISTS product_batches
+-- Structure of the `packings` table
+CREATE TABLE IF NOT EXISTS packings
 (
     id                  bigserial             NOT NULL,
     product_id          integer               NOT NULL,
@@ -238,27 +257,57 @@ CREATE TABLE IF NOT EXISTS product_batches
     entry_date          date                  NOT NULL,
     expiration_date     date,
     quantity            integer               NOT NULL,
-    unit_cost           decimal(12,2)         NOT NULL,
-    cost_value          decimal(15, 2)        GENERATED ALWAYS AS (unit_cost * stock) STORED,
-    stock               integer               NOT NULL,
     employee_id         integer               NOT NULL,
-    deleted             bool default false    NOT NULL,
+    is_done             bool                  NOT NULL,
     created_at          timestamp             NOT NULL,
     PRIMARY KEY(id),
-    CONSTRAINT product_batches_product_fkey FOREIGN KEY(product_id)
+    CONSTRAINT packings_product_fkey FOREIGN KEY(product_id)
     REFERENCES products(id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE RESTRICT,
-    CONSTRAINT product_batches_warehouses_fkey FOREIGN KEY(warehouse_id)
+    CONSTRAINT packings_warehouses_fkey FOREIGN KEY(warehouse_id)
     REFERENCES warehouses(id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE RESTRICT,
-    CONSTRAINT product_batches_employees_fkey FOREIGN KEY(employee_id)
+    CONSTRAINT packings_employees_fkey FOREIGN KEY(employee_id)
     REFERENCES employees(id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE RESTRICT
 );
 
+--
+-- Structure of the `packings_packing_details` table
+CREATE TABLE IF NOT EXISTS packing_details
+(
+    packing_id                  bigserial             NOT NULL,
+    raw_material_batch_id       bigint                NOT NULL,
+    quantity_used               decimal(12,2)         NOT NULL,
+    PRIMARY KEY(packing_id, raw_material_batch_id),
+    CONSTRAINT packings_details_packings FOREIGN KEY(packing_id)
+    REFERENCES packings(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT,
+    CONSTRAINT packings_details_raw_material_batch FOREIGN KEY(raw_material_batch_id)
+    REFERENCES raw_material_batches(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT
+);
+
+--
+-- Structure of the `product_batches` table
+CREATE TABLE IF NOT EXISTS product_batches
+(
+    id                  bigserial             NOT NULL,
+    unit_cost           decimal(12,2)         NOT NULL,
+    cost_value          decimal(15, 2)        GENERATED ALWAYS AS (unit_cost * stock) STORED,
+    stock               integer               NOT NULL,
+    deleted             bool default false    NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT product_batches_packings_fkey FOREIGN KEY(id)
+    REFERENCES packings(id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT
+);
 --
 -- Structure of the `typeofsale` ENUM
 CREATE TYPE typeofsale AS ENUM ('CONTADO', 'CRÉDITO');
