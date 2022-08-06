@@ -1,6 +1,6 @@
-<p align="center"><img src="brand/logo.png" alt="BeeReign Logo" width="auto" height="200"></p>
-
-<h1 align="center">The bee is born 🐝</h1>
+<p align="center">
+  <img src="brand/app-devices.png" alt="Bitwarden" />
+</p>
 
 ## Author
 
