@@ -1,10 +1,12 @@
 const boom = require('@hapi/boom');
 const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
+const moment = require('moment');
 
 const { RawMaterial } = require('../model/entity/rawMaterial');
 const { RawMaterialBatchService } = require('../../rawMaterialBatch');
 
+moment.locale('es-pa');
 const rawMaterialBatchService = new RawMaterialBatchService();
 class RawMaterialService {
   COUNT_QUERY =
@@ -69,6 +71,11 @@ class RawMaterialService {
         offset: offset,
       },
       type: QueryTypes.SELECT,
+    });
+    rawMaterials.map((rawMaterial) => {
+      rawMaterial.createdAt = moment(rawMaterial.createdAt).format(
+        'MMM D YYYY, h:mm:ss a'
+      );
     });
     const data = {};
     if (filter === '') {

@@ -50,17 +50,15 @@ CREATE TABLE IF NOT EXISTS modules
 -- Data for the table `modules`
 
 INSERT INTO modules (name, path) VALUES
-('Bodegas', '/warehouse'),
-('Configuración', '/config'),
-('Envasado', '/packing'),
-('Empleados', '/employee'),
-('Entrada de materia prima', '/raw-material-input'),
-('Inventario de materia prima', '/raw-material'),
-('Inventario de productos', '/product'),
-('Lotes de materia prima', '/raw-material-batch'),
-('Lotes de productos', '/product-batch'),
-('Salida de productos', '/product-output'),
-('Tipos de empleado', '/type-of-employee');
+('bodegas', 'warehouse'),
+('clientes', 'customer'),
+('configuración', 'config'),
+('empleados', 'employee'),
+('envasado', 'packing'),
+('facturación', 'billing'),
+('inventario de materia prima', 'raw-material'),
+('inventario de productos', 'product'),
+('tipos de empleado', 'type-of-employee');
 
 --
 -- Structure of the `type_of_employee_modules` table
@@ -74,6 +72,8 @@ CREATE TABLE IF NOT EXISTS type_of_employee_modules
     ON DELETE CASCADE,
     CONSTRAINT module_fkey FOREIGN KEY(module_id)
     REFERENCES modules(id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 --
@@ -87,9 +87,7 @@ INSERT INTO type_of_employee_modules(type_of_employee_id, module_id) VALUES
 (1, 6),
 (1, 7),
 (1, 8),
-(1, 9),
-(1, 10),
-(1, 11);
+(1, 9);
 
 --
 -- Structure of the `employees` table

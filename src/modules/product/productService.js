@@ -1,10 +1,12 @@
 const boom = require('@hapi/boom');
 const QueryTypes = require('sequelize/lib/query-types');
 const Op = require('sequelize/lib/operators');
+const moment = require('moment');
 
 const { Product } = require('./product');
 const { ProductBatchService } = require('../productBatch');
 
+moment.locale('es-pa');
 const productBatchService = new ProductBatchService();
 class ProductService {
   COUNT_QUERY =
@@ -71,6 +73,11 @@ class ProductService {
         offset: offset,
       },
       type: QueryTypes.SELECT,
+    });
+    products.map((product) => {
+      product.createdAt = moment(product.createdAt).format(
+        'MMM D YYYY, h:mm:ss a'
+      );
     });
     const data = {};
     if (filter === '') {
